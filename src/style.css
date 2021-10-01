@@ -1,0 +1,111 @@
+body h2{
+  margin: 0;
+}
+.App {
+  text-align: center;
+  height: 100%;
+}
+
+:root {
+  /* 定义RGB变量 */
+  --red: 7.8%;
+  --green: 50%;
+  --blue: 20%;
+  /* 文字颜色变色的临界值，建议0.5~0.6 */
+  --threshold: 0.5;
+  /* 深色边框出现的临界值，范围0~1，推荐0.8+*/
+  --border-threshold: 0.8;
+}
+.font-color-judge {
+  /* 按钮背景色就是基本背景色 */
+  /* background: rgb(var(--red), var(--green), var(--blue)); */
+
+  /** 
+   * 使用sRGB Luma方法计算灰度（可以看成亮度）
+   * 算法为：
+   * lightness = (red * 0.2126 + green * 0.7152 + blue * 0.0722) / 255
+  */
+  --r: calc(var(--red) * 0.2126);
+  --g: calc(var(--green) * 0.7152);
+  --b: calc(var(--blue) * 0.0722);
+  --sum: calc(var(--r) + var(--g) + var(--b));
+  --lightness: calc(var(--sum) / 255);
+  
+  /* 设置颜色 */
+  color: hsl(0, 0%, calc((var(--lightness) - var(--threshold)) * -999999%));
+}
+
+.filter::before {
+  content: "";
+  position: absolute;
+  top: 10;
+  left: 10;
+  right: 10;
+  bottom: 10;
+  background: url("https://image.tmdb.org/t/p/original/8s4h9friP6Ci3adRGahHARVd76E.jpg");
+  background-size: cover;
+  filter: blur(50px);
+  transform: scale(3);
+  z-index: -999;
+}
+.logo{
+  width: 100px;
+}
+.header{
+  position: fixed;
+  top: 0;
+  background: transparent;
+  width: 100%;
+  color: pink;
+}
+.font-white{
+  color: white;
+}
+.M_logo, .T_logo{
+  background: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+.I_logo{
+  padding: 5px;
+}
+.poster_rating_section{
+  color: white;
+}
+.poster_rating_section li img{
+  margin: 0;
+  width: 30px;
+}
+.poster_rating_section div{
+  justify-content: center;
+}
+.genre-DDL{
+  background: grey;
+}
+.poster_rating_section2{
+  margin-right: 30px;
+}
+.poster_rating_section2 div{
+  justify-content: center;
+}
+.poster_rating_section2 li img{
+  margin: 0;
+  width: 40px;
+}
+.hideUp{
+  top: -80px
+}
+.thumbs_up{
+  background: white;
+  color: black;
+}
+
+/* .font-color-judge{
+  color: white
+} */
+
+/* 
+-webkit-mask-image: linear-gradient(to bottom, black 50%, #fff 100%);
+mask-image: linear-gradient(to bottom,  #fff 65%, transparent 100%); */
+
+/* box-shadow: inset 0px -850px 500px -800px #fff; */
