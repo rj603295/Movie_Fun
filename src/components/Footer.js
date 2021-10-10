@@ -14,10 +14,11 @@ const FooterContainer = styled.div`
   background: #1C1C1C;
   color: white;
   padding: 40px 0;
-  padding-top: 150px;
+  padding-top: 10%;
+  font-size: 0.5rem;
 `
 const BrandSection = styled.div`
-  font-size: 40px;
+  font-size: 1rem;
   svg{
     padding: 10px;
   }

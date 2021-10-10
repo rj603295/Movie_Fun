@@ -16,13 +16,13 @@ import CreditPage from './pages/CreditPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import MemberPage from './pages/MemberPage'
+import AboutPage from './pages/AboutPage'
 import config from './config';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue } from "firebase/database"
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AuthContext from './context'
 import Footer from './components/Footer'
-import Loading from './components/Loading'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -106,6 +106,9 @@ function App() {
             </Route>
             <Route exact path="/member">
               <MemberPage />
+            </Route>
+            <Route exact path="/about">
+              <AboutPage />
             </Route>
           </Switch>
           <Footer />

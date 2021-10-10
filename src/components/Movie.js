@@ -1,38 +1,33 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart } from '@fortawesome/free-regular-svg-icons'
 import { faPlus, faCheck  } from '@fortawesome/free-solid-svg-icons'
 import AuthContext from '../context'
 import {
   getDatabase,
   ref,
-  update,
   onValue,
-  query,
-  orderByChild,
-  equalTo,
   set,
   runTransaction
-} from "firebase/database";
-import Loading from './Loading'
+} from "firebase/database"
 import RatingLoading from './RatingLoading'
 
 const MovieContainer = styled.div`
-  height: ${props => props.height};
+  height: 100%;
   width: 100%;
 `
 const ImgContainer = styled(Link)`
   display: flex;
-  height: 100%;
-  width: 100%;
+  height: auto;
+  width: 100%; 
   align-items: end;
   justify-content: end;
   background-position: center;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
   position: relative;
+  padding: 80.63% 0;
 `
 const RatingListRow = styled.div`
   text-align: left;
@@ -41,30 +36,69 @@ const RatingListRow = styled.div`
   list-style: none;
   border-radius: 5px;
   border: 3px solid grey;
-  font-size: 10px;
+  font-size: 0.1rem;
   font-weight: bold;
-  margin-right: 5px;
-  position: relative;
-  margin-right: ${props => props.ratingMargin};
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  margin-right: 0;
+  .logo{
+    width: 30%;
+  }
+  .I_logo{
+    padding: 8%;
+  }
+  li{
+    display: flex;
+    align-items: center;
+  }
+  @media (max-width: 1200px) {
+    width: 45%;
+   
+  }
+  @media (max-width: 415px) {
+    width: 55%;
+    margin-right: 0;
+    font-size: 0.1rem;
+    .logo{
+      width: 30%;
+    }
+  }
 `
 const Heart = styled.div`
-  color: white;
-  font-weight: bold;
-  font-size: 24px;
-  position: absolute;
-  top: 1%;
-  right: ${props => props.plusMargin};
-  background: grey;
-  border: 3px solid grey;
-  border-radius: 50%;
   svg{
-    margin: 8px;
+    display: block;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    box-sizing: border-box;
+    position: absolute;
+    top: 1%;
+    right: 1%;
+    background: grey;
+    border: 3px solid grey;
+    border-radius: 50%;
   }
   &:hover{
     
   }
+  @media (max-width: 815px) {
+    svg{
+      font-size: 1.7rem
+    }
+  }
+  @media (max-width: 415px) {
+    svg{
+      font-size: 2.5rem
+    }
+  }
 `
-export default function Movie ({ imgUrl, rating, id, isRating=false, isRatingLoading=false, height="500px", plusMargin, ratingMargin }) { 
+const Score = styled.span`
+  display: inline-block;
+  font-size: 2px;
+`
+export default function Movie ({ movie, imgUrl, rating, id, isRating=false, isRatingLoading=false }) { 
 
   const { user } = useContext(AuthContext)
   const { userFavorite } = useContext(AuthContext)
@@ -125,23 +159,20 @@ export default function Movie ({ imgUrl, rating, id, isRating=false, isRatingLoa
     }
   }
   return (
-    <MovieContainer height={height}>
-      <ImgContainer style={{ backgroundImage: `url("${imgUrl}")` }} to={`/movie/${id}`}>
+    <MovieContainer>
+      <ImgContainer
+      style={{backgroundImage: movie.poster_path ? `url("${imgUrl}")`: `url("https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg")`}} to={`/movie/${id}`}>
       {user && 
-      <Heart onClick={handleFavoriteMovie} plusMargin={plusMargin}>
+      <Heart onClick={handleFavoriteMovie}>
         {keysArr.includes(id.toString()) ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faPlus} />}
       </Heart>}
-      <div className="poster_rating_section" style={{ 
-            color: `#FFF`
-          }}>
-        {rating && isRating &&  
-        <RatingListRow ratingMargin={ratingMargin}>
+        {isRating &&
+        <RatingListRow>
           <RatingLoading isLoading={isRatingLoading} />
-          <li><img className="logo I_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg"/> {IMDB !== '' ? IMDB : 'No Data'}</li>
-          <li><img className="logo T_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg"/> {tomatoes  !== '' ? tomatoes : 'No Data'}</li>
-          <li><img className="logo M_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg"/> {Metacritic  !== '' ? Metacritic : 'No Data'}</li>
+          <li><img className="logo I_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg"/><Score>{IMDB !== '' ? IMDB : 'None'}</Score></li>
+          <li><img className="logo T_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg"/><Score>{tomatoes  !== '' ? tomatoes : 'None'}</Score></li>
+          <li><img className="logo M_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg"/><Score>{Metacritic  !== '' ? Metacritic : 'None'}</Score></li>
         </RatingListRow>}
-      </div>
       </ImgContainer>
     </MovieContainer>
   )
