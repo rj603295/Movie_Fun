@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
-import { Link, useHistory, useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import {
   getGenreSearch,
   getGenre,
   getIMDBID,
   getMovieRating
 } from '../../WebAPI'
-import RatingLoading from '../../components/RatingLoading'
 import Loading from '../../components/Loading'
 import Movie from '../../components/Movie'
-// import RatingList from './Rating'
+
 const Container = styled.div`
   background: #1C1C1C;
   padding-top: 80px;
@@ -20,97 +19,52 @@ const ResultContainer = styled.div`
   flex-wrap: wrap;
   box-sizing: border-box;
   justify-content: center;
-`
-const MovieContainer = styled(Link)`
-  display: flex;
-  width: 22%;
-  align-items: end;
-  justify-content: end;
-  margin: 20px 3px;
-  height: 400px;
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-  box-sizing: border-box;
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 415px) {
+    .RWD-L{
+      display: none;
+    }
+    .RWD-S{
+      display: block;
+    }
+  }
+
 `
 const TypeTitle = styled.h2`
-    padding: 20px 0px;
+    padding: 60px 0px;
     color: white;
 `
 const PageContainer = styled.div`
     color: white;
     padding: 30px 0px;
 `
-const RatingList = styled.div`
-    text-align: left;
-    background: white;
-    color: black;
-    list-style: none;
-    border-radius: 5px;
-    border: 3px solid grey;
-    font-size: 10px;
-    font-weight: bold;
-    position: relative;
-`
 const ItemContainer = styled.div`
   width: 23%;
   margin: 1%;
+  @media (max-width: 415px) {
+    width: 45%;
+  }
 `
-// function Movie ({ movie, rating, isLoading }) {
-//   let IMDB = ''
-//   let tomatoes = ''
-//   let Metacritic = ''
-//   if (rating) {
-//     // console.log(rating)
-//     for(let i = 0; i < rating.length; i++) {
-//       if (rating[i].Source === 'Internet Movie Database') {
-//         IMDB = rating[i].Value
-//       }
-//       if (rating[i].Source === 'Rotten Tomatoes') {
-//         tomatoes = rating[i].Value
-//       }
-//       if (rating[i].Source === 'Metacritic') {
-//         Metacritic = rating[i].Value
-//       }
-//     }
-//   }
-//   let imgUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-//   return(
-//     // <Link style={{ display: 'block', width: '22%'}} to={`/movie/${movie.id}`}>
-//       <MovieContainer style={{ backgroundImage: `url("${imgUrl}")`}} to={`/movie/${movie.id}`}>
-
-//       <div className="poster_rating_section2" style={{ 
-//             color: `white`, maringRight: '50px'
-//           }}>
-//     {rating && 
-    
-//     <RatingList>
-//       <RatingLoading isLoading={isLoading} />
-//       <li><img className="logo I_logo" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" alt="" /> {IMDB !== '' ? IMDB : 'No Data'}</li>
-//       <li><img className="logo T_logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg" alt="" /> {tomatoes  !== '' ? tomatoes : 'No Data'}</li>
-//       <li><img className="logo M_logo" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg" alt="" /> {Metacritic  !== '' ? Metacritic : 'No Data'}</li>
-//     </RatingList>}
-//     </div>
-//     </MovieContainer>
-//   )
-// }
-
 export default function SearchGenrePage() {
   const history = useHistory()
   const [movies, setMovies] = useState([])
   const [genres, setGenre] = useState([])
   const [Rating, setRating] = useState([])
   const [currentPage, setCurrentPage] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [totalPage, setTotalPage] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
   const isRatingLoading = useRef(Array(20).fill(true))
-  //Array(10).fill('ele');
   const { id } = useParams()
   //拿到此類型的電影集
   useEffect(() => {
-    setIsLoading(true)
+    // setIsLoading(true)
     if(id !== '') {
         getGenreSearch(id).then((res) => {
+          console.log(res)
           setCurrentPage(res.page)
+          setTotalPage(res.total_pages)
           setMovies(res.results)
         })
     } 
@@ -120,7 +74,6 @@ export default function SearchGenrePage() {
   useEffect(() => {
     let arr = []
     let arr2 = []
-    let loadingArr = []
     async function getMoviesRatings() {
       // setIsLoading(true)
       for(let i = 0; i < movies.length; i++) {
@@ -132,16 +85,6 @@ export default function SearchGenrePage() {
         await getMovieRating(arr[i]).then((res) => {
           arr2.push(res.Ratings)
           isRatingLoading.current[i] = false
-          // setIsRatingLoading(() => {
-          //   isRatingLoading.map((item, index) => {
-  
-          //     return index == i ? "" : item
-          //   })
-          // })
-          // this.setState({
-          //   array: array.map((item, _index) => _index == index ? {...item, [key]: value} : item)
-          // });
-          // loadingArr.push(true)
         })
       }
       setRating(arr2)
@@ -164,7 +107,10 @@ export default function SearchGenrePage() {
     history.push(`/search/genre/${id}`)
   }
   const handlePageChange = (page) => {
+
+    window.scrollTo(0, 0)
     setIsLoading(true)
+
     isRatingLoading.current = Array(20).fill(true)
     if(id !== '') {
       getGenreSearch(id, page).then((res) => {
@@ -196,14 +142,16 @@ export default function SearchGenrePage() {
       </select>}
       </TypeList> */}
         {movies && movies.map((item, index) => {
-          console.log('Loading', isRatingLoading.current[index])
-          return <ItemContainer><Movie plusMargin="3%" key={item.id} id={item.id} imgUrl={`https://image.tmdb.org/t/p/w500${item.poster_path}`} rating={Rating[index]} isRatingLoading={isRatingLoading.current[index]} isRating={true}/></ItemContainer>
+          return <ItemContainer className="RWD-L"><Movie key={item.id} movie={item} id={item.id} imgUrl={`https://image.tmdb.org/t/p/w500${item.poster_path}`} rating={Rating[index]} isRatingLoading={isRatingLoading.current[index]} isRating={true}/></ItemContainer>
+        })}
+        {movies && movies.map((item, index) => {
+          return <ItemContainer className="RWD-S"><Movie key={item.id} movie={item} id={item.id} imgUrl={`https://image.tmdb.org/t/p/w500${item.poster_path}`} rating={Rating[index]} isRatingLoading={isRatingLoading.current[index]} isRating={true}/></ItemContainer>
         })}
       </ResultContainer>
       <PageContainer>
-        {currentPage !== 1 ? <button onClick={() => {handlePageChange(currentPage - 1)}}>上一頁</button> : ""}
+        {currentPage !== 1 ? <button onClick={() => {handlePageChange(currentPage - 1)}}>&lt;</button> : ""}
          {currentPage}
-         <button onClick={() => {handlePageChange(currentPage + 1)}}>下一頁</button>
+         {currentPage !== totalPage ? <button onClick={() => {handlePageChange(currentPage + 1)}}>&gt;</button> : ""}
       </PageContainer>
     </Container>
 

@@ -8,26 +8,43 @@ import {
   getMovieRating,
 } from '../../WebAPI'
 import Movie from '../../components/Movie'
+import Person from '../../components/Person'
+import RatingList from '../../components/Rating'
 
 const Container = styled.div`
   background: #1C1C1C;
-  display: grid;
-  grid-template-columns: 20% 80%;
+  line-height: 1.5;
   color: white;
-  padding-top: 80px;
-
+  padding-top: 8%;
+  @media (max-width: 415px) {
+    display: block;
+    padding-top: 15%;
+  }
+`
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-columns: 30% 70%;
+  @media (max-width: 415px) {
+    display: block;
+  }
 `
 const ResultContainer = styled.div`
-
+  width: 100%;
+  @media (max-width: 415px) {
+    margin-top: 15%;
+  }
 `
 const MovieContainer = styled.div`
   border: 1px solid;
   margin: 20px auto;
   display: grid;
   grid-template-columns: 30% 70%;
-  // grid-gap: 0px 0px;
   align-items: center;
-  max-width: 70%
+  max-width: 90%;
+  @media (max-width: 415px) {
+    max-width: 90%;
+    grid-template-columns: 40% 60%;
+  }
 `
 const ImgContainer = styled.div`
   width:fit-content;
@@ -35,24 +52,63 @@ const ImgContainer = styled.div`
     img{
       height: 400px;
     }
+    @media (max-width: 415px) {
+      img{
+        height: 200px;
+      }
+    }
+
 `
 const ContentContainer = styled.div`
-  padding-right: 40px;
-`
-const TypeList = styled.div`
-
-   
-`
-const ClassificationList = styled.div`
+  margin: 0 auto;
+  padding: 8%;
+  font-size: 0.5rem;
   li{
     list-style: none;
-    padding: 10px 5px;
+  }
+  .rating-list{
+    margin-top: 5%;
+  }
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 900px) {
+    p{
+      display: -webkit-box;
+      overflow:hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      white-space: normal;
+    }
+  }
+  @media (max-width: 415px) {
+    .RWD-L{
+      display: block;
+    }
+    padding: 0px 5%;
+    h2{
+      font-weight: bold;
+    }
+
+  }
+`
+const ClassificationList = styled.div`
+  margin: 0 auto;
+  min-width: 80%;
+  margin-top: 10%;
+  font-size: 0.5rem;
+  li{
+    list-style: none;
+    padding-left: 0;
+    width: 100%;
+    padding: 5% 0;
     border: 1px solid white;
     cursor: pointer;
-    ${(props) => props.$active &&
-      `
-        color: yellow
-      `}
+  }
+  @media (max-width: 415px) {
+    display: none;
   }
  
 `
@@ -62,17 +118,25 @@ const PageContainer = styled.div`
 const ItemContainer = styled.div`
   width: 100%;
   margin: 1%;
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 415px) {
+    .RWD-S{
+      display: block;
+    }
+    .RWD-L{
+      display: none;
+    }
+    img{
+      height: 200px;
+    }
+  }
 `
 function People ({ person }) {
-  console.log('person', person)
-  let imgUrl = `https://image.tmdb.org/t/p/w500${person.profile_path}`
   return(
     <MovieContainer>
-      <ImgContainer>
-      <Link to={`/movie/${person.id}`}>
-        <img src={imgUrl} />
-      </Link>
-      </ImgContainer>
+      <Person person={person} isName={false}/>
       <ContentContainer>
         <h2>{person.name}</h2>
         <p>代表作: {person.known_for.map((item) => {
@@ -88,11 +152,19 @@ function SearchMovie ({ movie, rating }) {
   return(
     <MovieContainer>
       <ItemContainer>
-        <Movie key={movie.id} id={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={rating}  isRating={true}/>
+        <div className="RWD-L">
+        <Movie key={movie.id} movie={movie} id={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={rating}  isRating={false}/>
+        </div>  
+        <div className="RWD-S">
+        <Movie key={movie.id} movie={movie} id={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={rating}  isRating={false}/>
+        </div>
+        
       </ItemContainer>
       <ContentContainer>
         <h2>{movie.title}</h2>
         <p>{movie.overview}</p>
+        <div className="RWD-S"></div>
+        <div className="rating-list"><RatingList Ratings={rating} logoWidth="30px" /></div>
       </ContentContainer>
     </MovieContainer>
   )
@@ -113,12 +185,14 @@ export default function SearchPage() {
   const [isTypeListOpen, setIsTypeListOpen] = useState(false)
   const [currentGenre, setCurrentGenre] = useState(0)
   const [currentPage, setCurrentPage] = useState('')
+  const [totalPage, setTotalPage] = useState('')
   const { query } = useParams()
 
   useEffect(() => {
     if(query !== '' ) {
       getSearchData(query).then((res) => {
         setCurrentPage(res.page)
+        setTotalPage(res.total_pages)
         console.log('res',res)
         let movieCount = 0
         let peopleCount = 0
@@ -226,9 +300,10 @@ export default function SearchPage() {
     setCurrentGenre(e.target.value)
   }
   const handlePageChange = (page) => {
-
+    window.scrollTo(0, 0)
     getSearchData(query, page).then((res) => {
       setCurrentPage(res.page)
+      setTotalPage(res.total_pages)
       console.log('res',res)
       let movieCount = 0
       let peopleCount = 0
@@ -265,6 +340,10 @@ export default function SearchPage() {
   }
   return (
     <Container>
+            {/* <FilterIcon>
+      <FontAwesomeIcon icon={faFilter} />
+      </FilterIcon> */}
+      <Wrapper>
       <ClassificationList>
         <ul onClick={(e) => {handleCurrentType(e)}}>
           <li $active={currentType === 0} data-value="0">全部 {typesCount.allCount}</li>
@@ -277,10 +356,9 @@ export default function SearchPage() {
           })}
         </ul>
       </ClassificationList>
-      <ResultContainer>
-      <TypeList>
 
-      </TypeList>
+
+      <ResultContainer>
       {movies && currentType === 0 && 
         movies.map((item, index) => {
           if(item.media_type === 'movie') {
@@ -327,10 +405,12 @@ export default function SearchPage() {
           })
         }
       </ResultContainer>
+      </Wrapper>
+
       <PageContainer>
-        <button onClick={() => {handlePageChange(currentPage - 1)}}>上一頁</button>
+        {currentPage !== 1 ? <button onClick={() => {handlePageChange(currentPage - 1)}}>&lt;</button> : ""}
          {currentPage}
-         <button onClick={() => {handlePageChange(currentPage + 1)}}>下一頁</button>
+         {currentPage !== totalPage ? <button onClick={() => {handlePageChange(currentPage + 1)}}>&gt;</button> : ""}
       </PageContainer>
     </Container>
 

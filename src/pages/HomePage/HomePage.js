@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { 
@@ -21,15 +21,15 @@ import {
 import Carousel from '../../components/Carousel'
 import RatingList from '../../components/Rating'
 import Movie from '../../components/Movie'
+import Person from '../../components/Person'
 import Loading from '../../components/Loading'
 import Comment from '../../components/Comments'
-import AuthContext from '../../context'
 
 const Title = styled.h2`
-  font-size: 200px;
+  font-size: 5rem;
   color: rgb(224, 222, 222);
   margin: 0;
-  background-attachment: fixed;
+  padding: 3% 0;
 }
 `
 const MovieContainer = styled.div`
@@ -39,17 +39,34 @@ const MovieContainer = styled.div`
   z-index: 999;
   top: 70%;
   height: 100%;
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 415px) {
+    top: 0;
+    height: 60%;
+    .RWD-S{
+      display: block;
+    }
+    .RWD-L{
+      display: none;
+    }
+  }
 `
 const ImgContainer = styled(Link)`
   display: flex;
-  height: 350px;
+  height: auto;
   width: 100%;
+  padding: 70% 0;
   align-items: end;
   justify-content: end;
   margin-right: 10px;
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
+  @media (max-width: 415px) {
+    
+  }
 `
 const CarouselConatiner = styled.div`
   max-width: 95%;
@@ -57,6 +74,19 @@ const CarouselConatiner = styled.div`
   padding: 20px;
   box-sizing: border-box;
   background: #1C1C1C;
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 415px) {
+    top: 0;
+    height: 60%;
+    .RWD-S{
+      display: block;
+    }
+    .RWD-L{
+      display: none;
+    }
+  }
 `
 const Section = styled.div`
   position: relative;
@@ -67,24 +97,63 @@ const RecommendationSection = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
+  width: 100vw;
+  @media (max-width: 415px) {
+    width: 100%;
+  }
 `
 const Recommedation = styled.div`
   color: white;
   position: absolute;
   top: 30%;
   left: 10%;
+  @media (max-width: 415px) {
+    top:60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+  }
 `
 const RecommendationTitle = styled.h2`
-  font-size: 64px;
+  font-size: 2rem;
   text-align: left;
+  margin-bottom: 1%;
+  @media (max-width: 415px) {
+    text-align: center;
+    font-size: 4rem;
+  }
 `
 const RecommedationContent = styled.p`
   text-align: left;
+  font-size: 0.5rem;
   width: 50%;
+  margin-bottom: 1%;
+  line-height: 1.5;
+  @media (max-width: 415px) {
+    display: none;
+  }
+`
+const RecommedationRating = styled.div`
+  width: 50%;
+  @media (max-width: 415px) {
+    margin: 0 auto;
+  }
 `
 const PopularSection = styled.div`
   position: relative;
-  min-height: 700px;
+
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 415px) {
+    min-height: 200px;
+    .RWD-L{
+      display: none;
+    }
+    .RWD-S{
+      display: block;
+    }
+  }
 `
 const TypeSection = styled.div`
   color: white;
@@ -104,19 +173,15 @@ const TypeSection = styled.div`
     border-radius: 8px;
     color: white;
     text-decoration: none;
-  }
 
-`
-const RatingListRow = styled.div`
-    text-align: left;
-    background: white;
-    color: black;
-    list-style: none;
-    border-radius: 5px;
-    border: 3px solid grey;
-    font-size: 10px;
-    font-weight: bold;
-    margin-right: 60px;
+    background-size: cover;
+    background-position: center;
+  }
+  @media (max-width: 415px) {
+    font-size: 14px;
+    a{width: 27%;}
+  }
+ 
 `
 const UpcommingSection = styled.div`
 
@@ -130,28 +195,46 @@ const HotPeopleSection = styled.div`
 `
 const CreditName = styled.p`
   color: white;
+  font-size: 0.5rem;
 `
 const HotCommentsSection = styled.div`
   color: white;
   padding-bottom: 20px;
+  margin: 0 auto;
+  margin-top: 40px;
+  width: 60%;
+  @media (max-width: 415px) {
+    width: 85%;
+  }
 `
 function Credits({ credits }) {
   return (
     <CarouselConatiner>
+      <div className="RWD-L">
       <Carousel cols={6} gap={3}>
         {credits.map((item, index) =>
           <Carousel.Item key={item.id}>
-          {item.profile_path && 
+          {item.profile_path !== "null" && 
             <div>
-            <ImgContainer style={{ 
-              backgroundImage: `url("https://image.tmdb.org/t/p/w500${item.profile_path}")` 
-            }} to={`/credit/${item.id}`}>     
-            </ImgContainer>
-              <CreditName>{item.name}</CreditName>
+              <Person person={item}/>
             </div>}
           </Carousel.Item>        
         )}
       </Carousel>
+      </div>
+      <div className="RWD-S">
+      <Carousel cols={3} gap={3}>
+        {credits.map((item, index) =>
+          <Carousel.Item key={item.id}>
+          {item.profile_path !== "null" && 
+            <div>
+              <Person person={item}/>
+            </div>}
+          </Carousel.Item>        
+        )}
+      </Carousel>
+      </div>
+
     </CarouselConatiner>
   )
 }
@@ -166,14 +249,14 @@ export default function HomePage() {
   const [hotComments, setHotComments] = useState([])
   const [hotCommentsKey, setHotCommentsKey] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const { userFavorite } = useContext(AuthContext)
+  const isRatingLoading = useRef(Array(20).fill(true))
   //初始化
   useEffect(() => {
     //取得首頁單一電影
     async function getFirstHotMovie() {
       let imdb_id = ''
       let trendData
-      setIsLoading(true)
+      // setIsLoading(true)
       await getTrend().then((res) => {
         let data = res.results.sort(function(a,b){
           return b.popularity - a.popularity
@@ -205,7 +288,7 @@ export default function HomePage() {
     getPopularPeople().then((data) => {
       setHotPeople(data.results)
     })
-    //取得各種類型電影
+    //取得各種類型
     getGenre().then((res) => {
       let genreArr = []
       for(let i = 0; i < res.genres.length; i++) {
@@ -235,26 +318,9 @@ export default function HomePage() {
     });
 
   }, []);
-  //處理首頁單一電影的分數
-  let IMDB = ''
-  let tomatoes = ''
-  let Metacritic = ''
-  if (trend.Ratings) {
-    for(let i = 0; i < trend.Ratings.length; i++) {
-      if (trend.Ratings[i].Source === 'Internet Movie Database') {
-        IMDB = trend.Ratings[i].Value
-      }
-      if (trend.Ratings[i].Source === 'Rotten Tomatoes') {
-        tomatoes = trend.Ratings[i].Value
-      }
-      if (trend.Ratings[i].Source === 'Metacritic') {
-        Metacritic = trend.Ratings[i].Value
-      }
-    }
-  }
 //取得Popular movies分數
   useEffect(() => {
-    setIsLoading(true)
+    // setIsLoading(true)
     let arr = []
     let arr2 = []
     async function getPopularMovieRating() {
@@ -266,10 +332,11 @@ export default function HomePage() {
       for(let i = 0; i < arr.length; i++) {
         await getMovieRating(arr[i]).then((res) => {
           arr2.push(res.Ratings)
+          isRatingLoading.current[i] = false
         })
       }
       setRating(arr2)
-      setIsLoading(false)
+      // setIsLoading(false)
     }
     getPopularMovieRating().then(() => {setIsLoading(false)})
 
@@ -286,31 +353,53 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ 
-      backgroundColor: `#1C1C1C` 
-    }}>
+    <div style={{ backgroundColor: `#1C1C1C` }}>
       <Loading isLoading={isLoading} />
       <Section>
         <RecommendationSection style={{ 
-            backgroundImage: `linear-gradient(to top, #1C1C1C, transparent), url("https://image.tmdb.org/t/p/original${trend.backdrop_path}")` 
+            backgroundImage: trend.backdrop_path && `linear-gradient(to top, #1C1C1C, transparent), url("https://image.tmdb.org/t/p/original${trend.backdrop_path}")` 
           }}>
           <Recommedation>
             <RecommendationTitle>{trend.title}</RecommendationTitle>
             <RecommedationContent>{trend.overview}</RecommedationContent>
-            {trend.Ratings && <RatingList key={trend.id} IMDB={IMDB} tomatoes={tomatoes} Metacritic={Metacritic} />}
+            <RecommedationRating>{trend.Ratings && <RatingList key={trend.id} Ratings={trend.Ratings} />}</RecommedationRating>
           </Recommedation>
         </RecommendationSection>
         <PopularSection className="popular">
           <Title>Popular</Title>
           <MovieContainer>
           <CarouselConatiner>
-            <Carousel cols={3} gap={10}>
+            <div className="RWD-L">
+            <Carousel cols={4} gap={20}>
               {movies.map((movie, index) =>
-                <Carousel.Item>
-                  <Movie height="500px" plusMargin="15%" ratingMargin="60px" style={{ height: '200px' }} key={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={Rating[index]} id={movie.id} isRating={true} />
+                <Carousel.Item style={{width: "30%"}}>
+                  <Movie
+                  key={movie.id}
+                  movie={movie}
+                  imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  rating={Rating[index]}
+                  id={movie.id}
+                  isRating={true}
+                  isRatingLoading={isRatingLoading.current[index]} />
                 </Carousel.Item>        
               )}
               </Carousel>
+            </div>
+            <div className="RWD-S">
+            <Carousel cols={2} gap={10}>
+              {movies.map((movie, index) =>
+                <Carousel.Item>
+                  <Movie
+                  key={movie.id}
+                  movie={movie}
+                  imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  rating={Rating[index]}
+                  id={movie.id}
+                  isRating={true} />
+                </Carousel.Item>        
+              )}
+              </Carousel>
+            </div>
             </CarouselConatiner>
           </MovieContainer>
         </PopularSection>
@@ -319,13 +408,34 @@ export default function HomePage() {
         <UpcommingSection>
           <MovieContainer>
             <CarouselConatiner>
-              <Carousel cols={3} gap={10}>
+            <div className="RWD-L">
+              <Carousel cols={4} gap={10}>
                 {upcomming.map((movie, index) =>
                   <Carousel.Item>
-                    <Movie height="500px" plusMargin="15%" ratingMargin="60px" key={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={upcommingRating[index]} id={movie.id}/>
+                    <Movie
+                    key={movie.id}
+                    movie={movie}
+                    imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    rating={upcommingRating[index]}
+                    id={movie.id}/>
                   </Carousel.Item>        
                 )}
               </Carousel>
+              </div>
+              <div className="RWD-S">
+              <Carousel cols={2} gap={10}>
+                {upcomming.map((movie, index) =>
+                  <Carousel.Item>
+                    <Movie
+                    key={movie.id}
+                    movie={movie}
+                    imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    rating={upcommingRating[index]}
+                    id={movie.id}/>
+                  </Carousel.Item>        
+                )}
+              </Carousel>
+              </div>
             </CarouselConatiner>
           </MovieContainer>
         </UpcommingSection>
@@ -337,13 +447,13 @@ export default function HomePage() {
         <SubTitle>尋找您喜歡的類型</SubTitle>
         <TypeSection >
           {genres.map((genre) => {
-            return <Link to={`/search/genre/${genre.id}`}><li>{genre.name}</li></Link>
+            return <Link key={genre.id} to={`/search/genre/${genre.id}`}><li>{genre.name}</li></Link>
           })}
         </TypeSection>
         <Title>Comments</Title>
         <HotCommentsSection>
         {hotComments.length !== 0 ? hotComments.map((item, index) => {
-           return <Comment comment={item} handleCommentOpen={handleCommentOpen} isPosterOpen={true} />
+           return <Comment key={item.id} comment={item} handleCommentOpen={handleCommentOpen} isPosterOpen={true} />
           }) : <p>還沒有任何評論</p>}
         </HotCommentsSection>
       </Section>

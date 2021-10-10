@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react'
 import styled from 'styled-components'
-import { Link, useHistory } from 'react-router-dom'
-import { getPeopleDetail, getPeopleMovies } from '../../WebAPI'
-import Carousel from '../../components/Carousel'
-import { getAuth, updateProfile,  updatePhoneNumber  } from "firebase/auth"
+import { useHistory } from 'react-router-dom'
+import { getAuth, updateProfile } from "firebase/auth"
 import {
   getDatabase,
   ref,
   onValue,
   query,
   orderByChild,
-  equalTo
+  equalTo,
 } from 'firebase/database'
 import { getMovieDeatil } from '../../WebAPI'
 import AuthContext from '../../context'
@@ -21,71 +19,124 @@ const Container = styled.div`
   background: #1C1C1C;
   padding-top: 120px;
   color: white;
+  font-size: 0.5rem;
 `
 const Wrapper = styled.div`
   max-width: 60%;
   margin: 0 auto;
-  h2{
-    padding-top: 30px;
-    padding-bottom: 20px;
-    font-size: 40px;
+  .title{
+    padding-top: 5%;
+    padding-bottom: 5%;
+    font-size: 1.5rem;
     text-align: left;
     border-bottom: 1px solid white;
+  }
+  @media (max-width: 415px) {
+    max-width: 80%;
   }
 `
 const MemberDetailSection = styled.div`
   display: grid;
   grid-template-columns: 50% 50%;
   border-bottom: 1px solid white;
+  @media (max-width: 415px) {
+    grid-template-columns: 30% 70%;
+  }
 `
 const LeftContainer = styled.div`
-  font-size: 20px;
+  font-size: 0.6rem;
+  p{
+    padding: 5% 0;
+  }
 `
 const RightContainer = styled.div`
-
+  font-size: 0.45rem;
+  button{
+    margin-left: 1%;
+    font-size: 0.1rem;
+  }
+  .user-content{
+    padding: 5% 0;
+    line-height: 1.5;
+  }
 `
 const FavoriteMovieSection = styled.div`
-
+  p{
+    font-size: 1rem;
+    padding: 5% 0;
+  }
   border-bottom: 1px solid white;
 `
-const ImgContainer = styled.div`
-  width: 200px;
-  height: 100px;
-  background-size: cover;
-  background-position: center;
-  margin-bottom: 10px;
-`
 const FavoriteContainer = styled.div`
-display: flex;
- div{
-  width: 20%;
-  margin-right: 10px;
- }
+.favorite-movie{
+  margin: 1%;
+  box-sizing: border-box;
+}
+p{
+  font-size: 1rem;
+  padding: 5% 0;
+}
+.RWD-L{
+  display: flex;
+  flex-wrap: wrap;
+  .favorite-movie{
+    width: 22%;
+    margin-right: 5px;
+    margin-bottom: 20px;
+  }
+}
+.RWD-S{
+  display: none;
+}
+ margin-bottom: 5%;
+@media (max-width: 415px) {
+  .RWD-S{
+    display: flex;
+    flex-wrap: wrap;
+    .favorite-movie{
+      width: 45%;
+    }
+  }
+  .RWD-L{
+    display: none;
+  }
+}
+
 `
 const PhoneSection = styled.div`
  display: flex;
  justify-content: center;
 `
 const PersonalCommentSection = styled.div`
- padding-bottom: 20px;
+
+ padding-bottom: 5%;
+ min-width: 100%;
+
 `
 const CommentSection = styled.div`
 
+  margin: 0 auto;
+`
+const Pagination = styled.div`
+
+`
+const Title = styled.p`
+  font-size: 1rem;
+  padding: 5% 0;
 `
 export default function MemberPage() {
   const [favoriteID, setFavoriteID] = useState([])
   const [favoriteMovie, setFavoriteMovie] = useState([])
   const [personalComments, setPersonalComments] = useState([])
-  const [isPhoneEdit, setisPhoneEdit] = useState(false)
   const [isNicknameEdit, setIsNicknameEdit] = useState(false)
   const [nicknameValue, setNicknameValue] = useState("")
+  const [currentCommentPage, setCurrentCommentPage] = useState(1)
+  const [totalCommentPage, settotalCommentPage] = useState(1)
   const { user } = useContext(AuthContext)
   const history = useHistory()
   if(!user){
     history.push('/login')
   }
-  console.log(user)
-
   useEffect(() => {
     if(user){
       const db = getDatabase()
@@ -105,21 +156,29 @@ export default function MemberPage() {
     
         });
 
-        const posts = query(ref(db, 'comments'), orderByChild("uid"), equalTo(user.uid))  
+        const posts = query(ref(db, 'comments'), orderByChild("uid"),  equalTo(user.uid))  
+        //const posts = query(ref(db, 'comments'), orderByChild("created_at"), limitToFirst(5))
         onValue(posts, (snapshot) => {
           const data = snapshot.val()
-          console.log('data',data)
           let arr = []
           if(data){
             let keys = Object.keys(data)
-            for(let i = 0; i < keys.length; i++) {
-              arr.push(
-                {
-                  ...data[keys[i]], 
-                  isHide: true,
-                  id: keys[i]
-                }
-              )
+            let totalPage = Math.ceil(keys.length / 5)
+            settotalCommentPage(totalPage)
+            let len
+            if(keys.length >= 5) {
+              len = 5
+            } else {
+              len = keys.length
+            }
+            for(let i = 0; i < len; i++) {
+                arr.push(
+                  {
+                    ...data[keys[i]], 
+                    isHide: true,
+                    id: keys[i]
+                  }
+                )
             }
             setPersonalComments(arr.reverse())
           }
@@ -130,7 +189,6 @@ export default function MemberPage() {
   useEffect(() => {
     async function fetchData() {
       let arr = []
-      let arr2 = []
       for(let i = 0; i < favoriteID.length; i++) {
         await getMovieDeatil(favoriteID[i]).then((res) => {
           console.log(res)
@@ -175,18 +233,79 @@ export default function MemberPage() {
       }
     }))
   }
+  const handleCommentPage = (isNextPage) => {
+    const db = getDatabase()
+    const posts = query(ref(db, 'comments'), orderByChild("uid"),  equalTo(user.uid))  
+    if(isNextPage) {
+      onValue(posts, (snapshot) => {
+        const data = snapshot.val()
+        let arr = []
+        if(data){
+          let keys = Object.keys(data)
+          let len
+          if(keys.length >= currentCommentPage * 5 + 4) {
+            len = currentCommentPage * 5 + 4
+          } else {
+            len = keys.length
+          }
+          for(let i = currentCommentPage * 5; i < len; i++) {
+            // if(data[keys[i]].created_at < personalComments[4]){
+              arr.push(
+                {
+                  ...data[keys[i]], 
+                  isHide: true,
+                  id: keys[i]
+                }
+              )
+            // }
+  
+          }
+          setPersonalComments(arr.reverse())
+          setCurrentCommentPage(currentCommentPage + 1)
+        }
+      });
+    } else if (!isNextPage) {
+      onValue(posts, (snapshot) => {
+        const data = snapshot.val()
+        let arr = []
+        if(data){
+          let keys = Object.keys(data)
+          let len
+          if(keys.length >= (currentCommentPage-2) * 5 + 4) {
+            len = (currentCommentPage-2) * 5 + 4
+          } else {
+            len = keys.length
+          }
+          for(let i = (currentCommentPage-2) * 5; i < len; i++) {
+            // if(data[keys[i]].created_at < personalComments[4]){
+              arr.push(
+                {
+                  ...data[keys[i]], 
+                  isHide: true,
+                  id: keys[i]
+                }
+              )
+            // }
+  
+          }
+          setPersonalComments(arr.reverse())
+          setCurrentCommentPage(currentCommentPage - 1)
+        }
+      });
+    }
 
+  }
   return (
     <Container>
       <Wrapper>
-        <h2>帳戶</h2>
+        <h2 className="title">帳戶</h2>
         <MemberDetailSection>
           <LeftContainer>
             <p>會員資料</p>
           </LeftContainer>
           <RightContainer>
             {user && 
-            <div>
+            <div className="user-content">
             <p>{user.email}</p>
             <p>信箱驗證：{user.emailVerified ? "已驗證" : "尚未驗證"}</p>
             <PhoneSection>
@@ -207,24 +326,34 @@ export default function MemberPage() {
           </RightContainer>
         </MemberDetailSection>
         <FavoriteMovieSection>
-        <p>喜歡影片</p>
+        <Title>喜歡影片</Title>
           <FavoriteContainer>
+            <div className="RWD-L">
             {favoriteMovie.map((movie) => {
-              return <Movie height="300px" key={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} id={movie.id} isRating={false} />
-              
-              // <ImgContainer style={{ 
-              //   backgroundImage: `url("https://image.tmdb.org/t/p/original${movie.backdrop_path}")`}}></ImgContainer>
+              return <div className="favorite-movie"><Movie key={movie.id} movie={movie} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} id={movie.id} isRating={false} /></div>
             })}
-            </FavoriteContainer>
+            </div>
+            <div className="RWD-S">
+            {favoriteMovie.map((movie) => {
+              return <div className="favorite-movie"><Movie key={movie.id} movie={movie} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} id={movie.id} isRating={false} /></div>
+            })}
+            </div>
 
+
+          </FavoriteContainer>
         </FavoriteMovieSection>
         <PersonalCommentSection>
-          <p>評論</p>
+          <Title>歷史評論</Title>
           <CommentSection>
             {personalComments.length !== 0 ? personalComments.map((item, index) => {
-              return <Comment handleCommentOpen={handleCommentOpen} comment={item} isThumbsUpOpen={false} />
+              return <Comment handleCommentOpen={handleCommentOpen} comment={item} isThumbsUpOpen={true} isPosterOpen={true}/>
             }) : <p>還沒有任何評論</p>}          
           </CommentSection>
+          <Pagination>
+              {currentCommentPage !== 1 ? <button onClick={() => {handleCommentPage(false)}}>&lt;</button> : false}
+              {currentCommentPage}
+              {totalCommentPage !== currentCommentPage ? <button onClick={() => {handleCommentPage(true)}}>&gt;</button>: false}
+          </Pagination>
         </PersonalCommentSection>
       </Wrapper>
 

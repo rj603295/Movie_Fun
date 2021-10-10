@@ -1,25 +1,30 @@
 import React, { useEffect, useState, useContext } from 'react'
 import styled from 'styled-components'
-import { Link, useLocation, useHistory, useParams } from 'react-router-dom'
-import { getMovieDeatil, getSearchData, getMovieRating, getCredits, getSimilar, getVideo, getMovieImage } from '../../WebAPI'
+import { Link, useParams } from 'react-router-dom'
+import { getMovieDeatil, getMovieRating, getCredits, getSimilar, getVideo, getMovieImage } from '../../WebAPI'
 import Carousel from '../../components/Carousel'
 import Color, { useColor } from 'color-thief-react'
 import RatingList from '../../components/Rating'
-import { getDatabase, ref, onValue, set, push, query, orderByChild, equalTo} from "firebase/database";
+import { getDatabase, ref, onValue, set, push, query, orderByChild, equalTo } from "firebase/database";
 import AuthContext from '../../context'
-import { getDate } from '../../utils'
+import { getDate, getCreatedAt } from '../../utils'
 import Comment from '../../components/Comments'
+import Person from '../../components/Person'
 import Movie from '../../components/Movie'
+import { SRLWrapper } from "simple-react-lightbox";
 
 const LeftContainer = styled.div`
-  width: 50%;
-  height: 100vh;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  padding: 15%;
+  box-sizing: border-box;
 `
 const RightContainer = styled.div`
-  width: 50%;
-  font-size: 18px;
+  margin: 0 auto;
+  width: 100%;
+  font-size: 0.6rem;
   line-height: 1.5;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -27,11 +32,31 @@ const RightContainer = styled.div`
   li{
     list-style-type:none;
   }
+  .rating-list{
+    margin-top: 5%;
+  }
+  @media (max-width: 415px) {
+    width: 90%;
+    margin: 0 auto;
+    .rating-list{
+      
+    }
+  }
 `
 const Wrapper = styled.div`
-  display: flex;
   margin: 30px 100px;
+  @media (max-width: 415px) {
+    margin: 80px 0;
+  }
+`
+const DetailContainer = styled.div`
+
+  display: grid;
+  grid-template-columns: 50% 50%;
   z-index: 10000;
+  @media (max-width: 415px) {
+    display: block;
+  }
 `
 const Recommendations = styled.div`
   display: flex;
@@ -40,19 +65,25 @@ const CarouselConatiner = styled.div`
   max-width: 95%;
   width: 100%;
   padding: 20px;
+  margin: 0 auto;
   box-sizing: border-box;
-`
-const BackGroundContainer = styled(Link)`
-  display: block;
-  height: 500px;
-  width: 500PX;
-  margin-right: 10px;
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
+  .RWD-S{
+    display: none;
+  }
+  @media (max-width: 415px) {
+    max-width: 100%;
+
+    .RWD-S{
+      display: block;
+    }
+    .RWD-L{
+      display: none;
+    }
+  }
 `
 const Container = styled.div`
   padding: 0;
+  font-size: 1rem;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -60,57 +91,90 @@ const Container = styled.div`
   min-height: 100vh;
   padding-top: 5%;
   padding-bottom: 5%;
+  h2{
+    font-size: 1rem;
+  }
+  @media (max-width: 415px) {
+    padding-bottom: 0;
+  }
 `
-const BgCover = styled.div`
-  position: absolute;
-  background-color: rgba(255,255,255, 0.5);
-  height: 500px;
-  z-index: 999;
-  width: 100%;
-`
-const ImgContainer = styled(Link)`
+const RecommendImgContainer = styled(Link)`
   display: inline-block;
-  height: 300px;
   width: 100%;
+  padding: 30% 0;
   margin-right: 10px;
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
-
-`
-const PosterContainer = styled.div`
-  display: block;
-  height: 90%;
-  width: 100%;
-  margin-right: 10px;
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-`
+  @media (max-width: 415px) {
+    height: 150px;
+  }
+  `
 const Date = styled.span`
   
 `
 const MovieDetailContent = styled.ul`
   text-align: left;
-  font-size: 18px;
+  font-size: 0.5rem;
+  margin-top: 5%;
   line-height: 2;
+  @media (max-width: 415px) {
+    width: 100%;
+  }
 `
 const MovieVideoSection = styled.div`
-  height: 500px;
-  max-width: 60%;
+  max-width: 100%;
   margin: 0 auto;
+  width: 100%;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+  padding-top: 25.25%;
+  margin-top: 5%;
+  .responsive-iframe {
+    position: absolute;
+    top: 0%;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }
   p{
-    text-align: left;
+    text-align: center;
     font-size: 32px;
+    margin-bottom: 5%;
+  }
+  .RWD-S{
+    margin: 0 auto;
+    display: none;
+    opacity: 0;
+  }
+  @media (max-width: 415px) {
+    max-width: 90%;
+    padding-top: 50.25%;
+    p{
+      text-align: center;
+      font-size: 25px;
+      margin-bottom: 15px;
+    }
+    .RWD-S{
+      display: block;
+      opacity: 1;
+    }
+    .RWD-L{
+      display: none;
+      opacity: 0;
+    }
   }
 `
 const MovieImgSection = styled.div`
   display: flex;
   flex-wrap: wrap;
 `
-const MovieImg = styled.div`
-  height: 175px;
-  width: 25%;
+const MovieImg = styled.img`
+  height: auto;
+  width: 100%;
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -118,57 +182,92 @@ const MovieImg = styled.div`
     transition: 0.5s;
     transform: scale(1.1);
   }
+  @media (max-width: 415px) {
+   
+  }
 `
 const Keyword = styled.span`
-  margin-right: 2px;
+  display: inline-block;
+  font-size: 0.5rem;
   border-radius: 10px;
   margin-right: 10px;
+  margin-bottom: 10px;
   word-break: keep-all;
+  padding: 5px;
+
 `
 const CommentSection = styled.div`
   padding: 80px;
+  width: 60%;
+  margin: 0 auto;
   a{
     color: white;
   }
+  @media (max-width: 415px) {
+    padding: 0;
+    margin-bottom: 50px;
+    width: 85%;
+  }
 `
-// const RatingList = styled.div`
-//   display: flex;
-//   align-items: end;
-//   li{
-//     margin-right: 20px;
-//   }
-// `
-// const Credits = styled.div`
-  
-// `
+const Pagination = styled.div`
+
+`
+const AddCommentSection = styled.div`
+  width: 50%;
+  margin: 0 auto;
+  input[type=submit]{
+    margin-top: 3%;
+  }
+`
+const AddCommentColumn = styled.div`
+  display: grid;
+  grid-template-columns: 15% 85%;
+`
+const Comments = styled.div`
+  margin-bottom: 2%;
+`
+const NoComment = styled.p`
+  margin-bottom: 2%;
+`
 function Credits({ credits }) {
   return (
     <CarouselConatiner>
-      <Carousel cols={6} gap={0}>
+      <div className="RWD-L">
+      <Carousel cols={6} gap={10}>
         {credits.map((item, index) =>
           <Carousel.Item key={item.id}>
-          
             <div>
-            {item.profile_path && 
-            <ImgContainer style={{ 
-              backgroundImage: `url("https://image.tmdb.org/t/p/w500${item.profile_path}")` 
-            }} to={`/credit/${item.id}`}>     
-            </ImgContainer>}
-              <p>{item.original_name}</p>
+            {item.profile_path !== "null" && 
+              <Person person={item}/>
+            }
+              {/* <p>{item.original_name}</p> */}
             </div>
           </Carousel.Item>        
         )}
         </Carousel>
+      </div>
+      <div className="RWD-S">
+      <Carousel cols={3} gap={0}>
+        {credits.map((item, index) =>
+          <Carousel.Item key={item.id}>      
+            <div>
+            {item.profile_path !== "null" && 
+            <Person person={item}/>
+            }
+              {/* <p>{item.original_name}</p> */}
+            </div>
+          </Carousel.Item>        
+        )}
+        </Carousel>
+      </div>
+
       </CarouselConatiner>
   )
 }
 export default function MovieDetailPage() {
-  
-  const location = useLocation()
-  const history = useHistory()
+
   const [movie, setMovie] = useState([])
   const [rating, setRating] = useState([])
-  const [search, setSearch] = useState('')
   const [recommendations, setRecommendations] = useState([])
   const [credits, setCredits] = useState([])
   const [director, setDirector] = useState({})
@@ -179,6 +278,8 @@ export default function MovieDetailPage() {
   const [commentTitle, setcommentTitle] = useState('')
   const [commentContent, setcommentContent] = useState('')
   const [isCommentInputOpen, setisCommentInputOpen] = useState(false)
+  const [currentCommentPage, setCurrentCommentPage] = useState(1)
+  const [totalCommentPage, settotalCommentPage] = useState(1)
   const { id } = useParams()
   const { user } = useContext(AuthContext)
   
@@ -188,11 +289,18 @@ export default function MovieDetailPage() {
       const posts = query(ref(db, 'comments'), orderByChild("movie_id"), equalTo(id))  
         onValue(posts, (snapshot) => {
           const data = snapshot.val()
-          console.log('data',data)
           let arr = []
           if(data){
             let keys = Object.keys(data)
-            for(let i = 0; i < keys.length; i++) {
+            let totalPage = Math.ceil(keys.length / 5)
+            settotalCommentPage(totalPage)
+            let len
+            if(keys.length >= 5) {
+              len = 5
+            } else {
+              len = keys.length
+            }
+            for(let i = 0; i < len; i++) {
               arr.push(
                 {
                   ...data[keys[i]], 
@@ -232,7 +340,6 @@ export default function MovieDetailPage() {
     }
     str += '0.8)'
     backgroundMask = str
-    console.log(backgroundMask)
   }
 
   if(data) {  
@@ -245,7 +352,6 @@ export default function MovieDetailPage() {
 
   useEffect(() => {
     getMovieDeatil(id).then((res) => {
-      console.log(res)
       setMovie(res)
       return res
     }).then((res) => {
@@ -271,17 +377,17 @@ export default function MovieDetailPage() {
       setDirector(director[0])
     })
     getMovieImage(id).then((res) => {
-      let imgArr = res.backdrops.slice(3, 7)
+      // let imgArr = res.backdrops.slice(3, 7)
+      let imgArr = res.backdrops
       setImages(imgArr)
     })
   }, [id])
 
   const handleCommentSubmit = () => {
     function writeUserData(content, title) {
-
       const db = getDatabase();
       let date = getDate()
-
+      let created_at = getCreatedAt()
       push(ref(db, 'comments'), {
         content: commentContent,
         title: commentTitle,
@@ -289,7 +395,8 @@ export default function MovieDetailPage() {
         display_name: user.providerData[0].displayName,
         thumbs_up: 0,
         movie_id: id,
-        uid: user.uid 
+        uid: user.uid,
+        created_at: created_at
       });
     }
     writeUserData()
@@ -303,21 +410,61 @@ export default function MovieDetailPage() {
       }
     }))
   }
-  let IMDB = ''
-  let tomatoes = ''
-  let Metacritic = ''
-  if (rating) {
-    for(let i = 0; i < rating.length; i++) {
-      if (rating[i].Source === 'Internet Movie Database') {
-        IMDB = rating[i].Value
-      }
-      if (rating[i].Source === 'Rotten Tomatoes') {
-        tomatoes = rating[i].Value
-      }
-      if (rating[i].Source === 'Metacritic') {
-        Metacritic = rating[i].Value
-      }
+  const handleCommentPage = (isNextPage) => {
+    const db = getDatabase()
+    const posts = query(ref(db, 'comments'), orderByChild("movie_id"), equalTo(id)) 
+    if(isNextPage) {
+      onValue(posts, (snapshot) => {
+        const data = snapshot.val()
+        let arr = []
+        if(data){
+          let keys = Object.keys(data)
+          let len
+          if(keys.length >= currentCommentPage * 5 + 4) {
+            len = currentCommentPage * 5 + 4
+          } else {
+            len = keys.length
+          }
+          for(let i = currentCommentPage * 5; i < len; i++) {
+              arr.push(
+                {
+                  ...data[keys[i]], 
+                  isHide: true,
+                  id: keys[i]
+                }
+              )
+          }
+          setComments(arr.reverse())
+          setCurrentCommentPage(currentCommentPage + 1)
+        }
+      });
+    } else if (!isNextPage) {
+      onValue(posts, (snapshot) => {
+        const data = snapshot.val()
+        let arr = []
+        if(data){
+          let keys = Object.keys(data)
+          let len
+          if(keys.length >= (currentCommentPage-2) * 5 + 4) {
+            len = (currentCommentPage-2) * 5 + 4
+          } else {
+            len = keys.length
+          }
+          for(let i = (currentCommentPage-2) * 5; i < len; i++) {
+              arr.push(
+                {
+                  ...data[keys[i]], 
+                  isHide: true,
+                  id: keys[i]
+                }
+              )
+          }
+          setComments(arr.reverse())
+          setCurrentCommentPage(currentCommentPage - 1)
+        }
+      });
     }
+
   }
 
   return (
@@ -329,21 +476,20 @@ export default function MovieDetailPage() {
             backgroundImage: `linear-gradient(to top, #1C1C1C, ${backgroundMask}), url("https://image.tmdb.org/t/p/original${movie.backdrop_path}")` //https://image.tmdb.org/t/p/original/wwemzKWzjKYJFfCeiB57q3r4Bcm.svg
           }}>
       <Wrapper>
+        <DetailContainer>
         <LeftContainer>
-        {/* <BackGroundContainer >
-          </BackGroundContainer> */}
-          <Movie height="90%" plusMargin="17%" ratingMargin="60px" key={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} id={movie.id}/>
-          {/* <PosterContainer style={{ 
-            backgroundImage: `url("https://image.tmdb.org/t/p/w500${movie.poster_path}")` 
-          }}>
-          </PosterContainer> */}
+          <Movie
+          key={movie.id}
+          movie={movie}
+          imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+          id={movie.id}/>
         </LeftContainer>
         <RightContainer style={{ 
             color: `${colorStr}`
           }}>
           <h2>{movie.title}<Date>({movie.release_date.substr(0, 4)})</Date></h2>
           <p>{movie.overview}</p>
-          {rating && <RatingList IMDB={IMDB} tomatoes={tomatoes} Metacritic={Metacritic}></RatingList>}
+          {rating && <div className="rating-list"><RatingList Ratings={rating}></RatingList></div>}
           <MovieDetailContent>
             {director && <li>導演：{director.name}</li>}
             <li>片長：{movie.runtime}</li>
@@ -352,57 +498,89 @@ export default function MovieDetailPage() {
               return <Keyword style={{ border: `1px solid ${colorStr}`}}>{'#'+item.name}</Keyword>
             })}</li>
           </MovieDetailContent>
-
-
         </RightContainer>
-        
-      </Wrapper>
-      <h2>相關圖片：</h2>
+        </DetailContainer>
+        <h2>相關圖片：</h2>
       <MovieImgSection>
-        
-            {images && images.map((item) => {
+      <CarouselConatiner>
+            <div className="RWD-L">
+            <Carousel cols={4} gap={10}>
+              {images && images.map((item) => {
+              return <Carousel.Item>
+                <SRLWrapper>
+                  <MovieImg src={`https://image.tmdb.org/t/p/original${item.file_path}`}></MovieImg>
+                  </SRLWrapper>
+                  </Carousel.Item>
+            })}
+              </Carousel>
+            </div>
+            <div className="RWD-S">
+            <Carousel cols={2} gap={10}>
+              {images && images.map((item) => {
+              return <Carousel.Item>
+                <SRLWrapper>
+                  <MovieImg src={`https://image.tmdb.org/t/p/original${item.file_path}`}></MovieImg>
+                  </SRLWrapper>
+                  </Carousel.Item>
+            })}
+              </Carousel>
+            </div>
+            </CarouselConatiner>
+            {/* {images && images.map((item) => {
               return <MovieImg style={{ 
                 backgroundImage: `url("https://image.tmdb.org/t/p/original${item.file_path}")`
               }}></MovieImg>
-            })}
+            })} */}
           </MovieImgSection>
-      <MovieVideoSection>
-        <p>預告：</p>
-          {video && <iframe width="1080" height="315" src={`https://www.youtube.com/embed/${video.key}?autoplay=1`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>}
-          </MovieVideoSection>
+          <p>預告：</p>
+        <MovieVideoSection>
+            {video && <iframe className="responsive-iframe" src={`https://www.youtube.com/embed/${video.key}?autoplay=1`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>}
+        </MovieVideoSection>
+      </Wrapper>
+
       </Container>}
       <h2>Credits</h2>
       <Credits credits={credits}></Credits>
       <h2>Comments</h2>
       <CommentSection>
-          {comments.length !== 0 ? comments.map((item, index) => {
+        <Comments>
+        {comments.length !== 0 ? comments.map((item, index) => {
             // console.log(item)
             return <Comment handleCommentOpen={handleCommentOpen} comment={item} />
-          }) : <p>還沒有任何評論</p>}
-          {user ? <button onClick={() => {setisCommentInputOpen(!isCommentInputOpen)}}>新增評論</button> : <Link to="/login">點我登入評論</Link>}
+          }) : <NoComment>還沒有任何評論</NoComment>}
+          {user ?<button onClick={() => {setisCommentInputOpen(!isCommentInputOpen)}}>新增評論</button> : <Link to="/login">點我登入評論</Link>}
+        </Comments>
+
           
           {isCommentInputOpen && 
-            <div>
-              標題: <input type="text" onChange={(e) => setcommentTitle(e.target.value)}/><br />
-              內容: <textarea type="text" onChange={(e) => setcommentContent(e.target.value)} />
+            <AddCommentSection>
+              <AddCommentColumn>
+                <span>標題：</span><input type="text" onChange={(e) => setcommentTitle(e.target.value)}/>
+              </AddCommentColumn>
+              <AddCommentColumn>
+                <span>內容：</span><textarea type="text" onChange={(e) => setcommentContent(e.target.value)} />
+              </AddCommentColumn>
               <input type="submit" onClick={handleCommentSubmit}></input>
-            </div>
+            </AddCommentSection>
           }
+          <Pagination>
+              {currentCommentPage !== 1 ? <button onClick={() => {handleCommentPage(false)}}>&lt;</button> : false}
+              {currentCommentPage}
+              {totalCommentPage !== currentCommentPage ? <button onClick={() => {handleCommentPage(true)}}>&gt;</button>: false}
+          </Pagination>
       </CommentSection>
       <h2>推薦專區</h2>
       <Recommendations>
-
         <CarouselConatiner>
           <Carousel cols={3} gap={10}>
             {recommendations.map((item, index) =>
               <Carousel.Item key={item.id}>
                 <div>
-                {item.poster_path && <ImgContainer style={{ 
+                {item.poster_path && <RecommendImgContainer style={{ 
                   backgroundImage: `url("https://image.tmdb.org/t/p/w500${item.poster_path}")` 
                 }} to={`/movie/${item.id}`}>
-                </ImgContainer>}
+                </RecommendImgContainer>}
                 </div>
-
               </Carousel.Item>        
             )}
             </Carousel>
