@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/Movie_Fun/static/css/main.6737eb1e.chunk.css",
+    "main.css": "/Movie_Fun/static/css/main.94d0276d.chunk.css",
     "main.js": "/Movie_Fun/static/js/main.935b87c5.chunk.js",
     "main.js.map": "/Movie_Fun/static/js/main.935b87c5.chunk.js.map",
     "runtime-main.js": "/Movie_Fun/static/js/runtime-main.9b5000ca.js",
@@ -10,7 +10,7 @@
     "static/js/3.9d66aa63.chunk.js": "/Movie_Fun/static/js/3.9d66aa63.chunk.js",
     "static/js/3.9d66aa63.chunk.js.map": "/Movie_Fun/static/js/3.9d66aa63.chunk.js.map",
     "index.html": "/Movie_Fun/index.html",
-    "static/css/main.6737eb1e.chunk.css.map": "/Movie_Fun/static/css/main.6737eb1e.chunk.css.map",
+    "static/css/main.94d0276d.chunk.css.map": "/Movie_Fun/static/css/main.94d0276d.chunk.css.map",
     "static/js/2.c53ba639.chunk.js.LICENSE.txt": "/Movie_Fun/static/js/2.c53ba639.chunk.js.LICENSE.txt",
     "static/media/ZZ5H.a1a99674.gif": "/Movie_Fun/static/media/ZZ5H.a1a99674.gif",
     "static/media/giphy.4d579986.gif": "/Movie_Fun/static/media/giphy.4d579986.gif"
@@ -18,7 +18,7 @@
   "entrypoints": [
     "static/js/runtime-main.9b5000ca.js",
     "static/js/2.c53ba639.chunk.js",
-    "static/css/main.6737eb1e.chunk.css",
+    "static/css/main.94d0276d.chunk.css",
     "static/js/main.935b87c5.chunk.js"
   ]
 }
