@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -36,7 +36,7 @@ const RatingListRow = styled.div`
   list-style: none;
   border-radius: 5px;
   border: 3px solid grey;
-  font-size: 0.1rem;
+  font-size: 0.5rem;
   font-weight: bold;
   position: absolute;
   right: 0;
@@ -55,12 +55,11 @@ const RatingListRow = styled.div`
   }
   @media (max-width: 1200px) {
     width: 45%;
-   
   }
   @media (max-width: 415px) {
     width: 55%;
     margin-right: 0;
-    font-size: 0.1rem;
+    font-size: 14px;
     .logo{
       width: 30%;
     }
@@ -90,16 +89,22 @@ const Heart = styled.div`
   }
   @media (max-width: 415px) {
     svg{
-      font-size: 2.5rem
+      font-size: 3.5rem
     }
   }
 `
 const Score = styled.span`
   display: inline-block;
-  font-size: 2px;
+  font-size: 12px;
 `
-export default function Movie ({ movie, imgUrl, rating, id, isRating=false, isRatingLoading=false }) { 
+function Movie ({
+  movie,
+  rating,
+  isRating=false,
+  isRatingLoading=false }) { 
 
+  const imgUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+  let id = movie.id
   const { user } = useContext(AuthContext)
   const { userFavorite } = useContext(AuthContext)
   const db = getDatabase()
@@ -177,3 +182,11 @@ export default function Movie ({ movie, imgUrl, rating, id, isRating=false, isRa
     </MovieContainer>
   )
 }
+
+export default React.memo(Movie, (prevProps, nextProps) => {
+
+  if (prevProps.isRatingLoading !== nextProps.isRatingLoading) {
+    return false //re-render
+  }
+  return true //不會 Re-render
+});

@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database"
 import AuthContext from '../../context'
+import { getUserDeviceType } from '../../utils'
 
 const Container = styled.div`
   color: white;
@@ -18,6 +19,9 @@ const Container = styled.div`
   width: 100vw;
   backdrop-filter: blur(10px);
   position: relative;
+  input{
+    font-size: ${props => props.isMobileDevice ? "initial" : ""}
+  }
 `
 const LoginSection = styled.div`
   background: rgba(0, 0, 0, 0.5);
@@ -40,12 +44,14 @@ const LoginSection = styled.div`
   input{
     width: 70%;
   }
-  input[type="text"] {
-    margin-bottom: 5%;
-  }
-  @media (max-width: 376px) {
+
+  @media (max-width: 415px) {
     min-width: 80%;
     padding: 60px 0;
+    h2{
+      font-size: 20px;
+    }
+    font-size: 16px;
   }
 `
 
@@ -91,7 +97,7 @@ export default function LoginPage() {
       });
   }
   return (
-    <Container>
+    <Container isMobileDevice={getUserDeviceType()}>
       <LoginSection>
       <h2>註冊</h2>
       <label>帳號：</label>

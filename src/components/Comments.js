@@ -6,6 +6,7 @@ import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 import AuthContext from '../context'
 import { getDatabase, ref, runTransaction, update, set } from "firebase/database"
 import { getMovieDeatil } from '../WebAPI'
+import { getUserDeviceType } from '../utils'
 
 const CommentContainer = styled.div`
   min-width: 70%;
@@ -18,6 +19,9 @@ const CommentContainer = styled.div`
     width: 85%;
     height: 100px;
     margin-top: 20px;
+  }
+  input, textarea{
+    font-size: ${props => props.isMobileDevice ? "initial" : ""}
   }
   @media (max-width: 415px) {
     min-width: 85%;
@@ -35,11 +39,19 @@ const TitleWrapper = styled.div`
   }
 `
 const ThumbWrapper = styled.div`
-  font-size: 12px;
+  font-size: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  @media (max-width: 813px) {
+
+    font-size: 0.8rem
+  }
   @media (max-width: 415px) {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 2rem;
   }
 `
 const Date = styled.span`
@@ -47,13 +59,18 @@ const Date = styled.span`
 `
 const Thumb = styled.span`
   cursor: pointer;
-  display: inline-block;
-  border: 1px solid white;
-  padding: 20% 10%;
-  border-radius: 50%;
+  display: block;
+  border: 3px solid #acb9cc;
+  box-sizing: border-box;
+  border-radius: 8px;
+  padding: 8% 0;
+  width: 100%;
   &:hover{
-    background: white;
+    background: #edf0f9;
     color: black;
+  }
+  @media (max-width: 415px) {
+    padding: 8% 2%;
   }
 `
 const TitleSection = styled.div`
@@ -122,6 +139,10 @@ const Content = styled.p`
   font-size: 0.4rem;
   margin: 0 auto;
   margin-top: 4%;
+  line-height: 1.5;
+  @media (max-width: 415px) {
+    font-size: 14px;
+  }
 `
 export default function Comments({ comment, handleCommentOpen, isPosterOpen=false, isThumbsUpOpen=true }) {
   const { user } = useContext(AuthContext)
@@ -137,7 +158,6 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
   }
   useEffect(() => {
     getMovieDeatil(comment.movie_id).then((res) => {
-      console.log(res)
       setMovie(res)
     })
   }, [comment.movie_id])
@@ -202,9 +222,9 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
   }
 
   return (
-    <CommentContainer>
+    <CommentContainer isMobileDevice={getUserDeviceType()}>
       <TitleWrapper>
-        <TitleSection column={isPosterOpen && user.uid === comment.uid ? "10% 80% 10%" : "70% 30%"} RWDS_column={isPosterOpen && user.uid === comment.uid ? "20% 70% 10%" : "80% 20%"} >
+        <TitleSection column={isPosterOpen  ? "10% 80% 10%" : "70% 30%"} RWDS_column={isPosterOpen  ? "20% 65% 15%" : "80% 20%"} >
           {/* <ColumnWrapper> */}
             {isPosterOpen && movie &&
             <ImgContainer to={`movie/${comment.movie_id}`} style={{backgroundImage: `url('https://image.tmdb.org/t/p/w500${movie.poster_path}')`}}></ImgContainer>}

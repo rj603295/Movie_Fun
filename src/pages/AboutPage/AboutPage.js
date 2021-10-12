@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -23,6 +23,11 @@ const AboutSection = styled.div`
     font-size: 1rem;
     margin-bottom: 2%;
   }
+  @media (max-width: 415px) {
+    h2{
+      font-size: 2.5rem;
+    }
+  }
 `
 const LogoSection = styled.div`
   display: grid;
@@ -42,9 +47,10 @@ const LogoSection = styled.div`
   }
   @media (max-width: 415px) {
     display: block;
+    font-size: 1.7rem;
     margin-bottom: 20%;
     .IMDB, .tomato, .metacritic{
-      width: 50%;
+      width: 35%;
     }
   }
 `

@@ -11,7 +11,8 @@ import { getDate, getCreatedAt } from '../../utils'
 import Comment from '../../components/Comments'
 import Person from '../../components/Person'
 import Movie from '../../components/Movie'
-import { SRLWrapper } from "simple-react-lightbox";
+import { SRLWrapper } from 'simple-react-lightbox'
+import { getUserDeviceType } from '../../utils'
 
 const LeftContainer = styled.div`
   margin: 0 auto;
@@ -37,7 +38,11 @@ const RightContainer = styled.div`
   }
   @media (max-width: 415px) {
     width: 90%;
+    font-size: 14px;
     margin: 0 auto;
+    h2{
+      font-size: 18px;
+    }
     .rating-list{
       
     }
@@ -96,6 +101,9 @@ const Container = styled.div`
   }
   @media (max-width: 415px) {
     padding-bottom: 0;
+    h2{
+      font-size: 2.3rem;
+    }
   }
 `
 const RecommendImgContainer = styled(Link)`
@@ -120,6 +128,7 @@ const MovieDetailContent = styled.ul`
   line-height: 2;
   @media (max-width: 415px) {
     width: 100%;
+    font-size: 14px;
   }
 `
 const MovieVideoSection = styled.div`
@@ -194,7 +203,9 @@ const Keyword = styled.span`
   margin-bottom: 10px;
   word-break: keep-all;
   padding: 5px;
-
+  @media (max-width: 415px) {
+    font-size: 14px;
+  }
 `
 const CommentSection = styled.div`
   padding: 80px;
@@ -218,6 +229,9 @@ const AddCommentSection = styled.div`
   input[type=submit]{
     margin-top: 3%;
   }
+  input, textarea{
+    font-size: ${props => props.isMobileDevice ? "initial" : "0.5rem"}
+  }
 `
 const AddCommentColumn = styled.div`
   display: grid;
@@ -240,7 +254,6 @@ function Credits({ credits }) {
             {item.profile_path !== "null" && 
               <Person person={item}/>
             }
-              {/* <p>{item.original_name}</p> */}
             </div>
           </Carousel.Item>        
         )}
@@ -254,7 +267,7 @@ function Credits({ credits }) {
             {item.profile_path !== "null" && 
             <Person person={item}/>
             }
-              {/* <p>{item.original_name}</p> */}
+
             </div>
           </Carousel.Item>        
         )}
@@ -274,7 +287,6 @@ export default function MovieDetailPage() {
   const [video, setVideo] = useState([])
   const [images, setImages] = useState([])
   const [comments, setComments] = useState([])
-  const [commentsKey, setCommentskey] = useState([])
   const [commentTitle, setcommentTitle] = useState('')
   const [commentContent, setcommentContent] = useState('')
   const [isCommentInputOpen, setisCommentInputOpen] = useState(false)
@@ -282,13 +294,16 @@ export default function MovieDetailPage() {
   const [totalCommentPage, settotalCommentPage] = useState(1)
   const { id } = useParams()
   const { user } = useContext(AuthContext)
-  
+  console.log(id)
   useEffect(() => {
     function getComments() {
+      console.log('我有get評論', id)
+      
       const db = getDatabase();
       const posts = query(ref(db, 'comments'), orderByChild("movie_id"), equalTo(id))  
         onValue(posts, (snapshot) => {
           const data = snapshot.val()
+          console.log('data',data)
           let arr = []
           if(data){
             let keys = Object.keys(data)
@@ -310,7 +325,8 @@ export default function MovieDetailPage() {
               )
             }
             setComments(arr.reverse())
-            setCommentskey(keys.reverse())
+          } else {
+            setComments([])
           }
           
         });
@@ -399,7 +415,14 @@ export default function MovieDetailPage() {
         created_at: created_at
       });
     }
-    writeUserData()
+    if(commentTitle !== '' && commentContent !== '') {
+      setcommentTitle('')
+      setcommentContent('')
+      writeUserData()
+    } else {
+      alert('請輸入評論標題及內容')
+    }
+
   }
   const handleCommentOpen = (id) => {
     setComments(comments.map((item) => {
@@ -532,7 +555,7 @@ export default function MovieDetailPage() {
               }}></MovieImg>
             })} */}
           </MovieImgSection>
-          <p>預告：</p>
+          <h2>預告：</h2>
         <MovieVideoSection>
             {video && <iframe className="responsive-iframe" src={`https://www.youtube.com/embed/${video.key}?autoplay=1`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>}
         </MovieVideoSection>
@@ -553,7 +576,7 @@ export default function MovieDetailPage() {
 
           
           {isCommentInputOpen && 
-            <AddCommentSection>
+            <AddCommentSection isMobileDevice={getUserDeviceType()}>
               <AddCommentColumn>
                 <span>標題：</span><input type="text" onChange={(e) => setcommentTitle(e.target.value)}/>
               </AddCommentColumn>

@@ -40,6 +40,7 @@ const PersonContent = styled.div`
   font-size: 0.4rem;
   @media (max-width: 415px) {
     width: 100%;
+    font-size: 16px;
   }
 `
 const FamousMovieSection = styled.div`
@@ -60,6 +61,10 @@ const FamousMovieSection = styled.div`
 `
 const Biography = styled.p`
   margin-top: 3%;
+  @media (max-width: 415px) {
+    line-height: 1.5;
+    
+  }
 `
 const Title = styled.h2`
   margin-top: 60px;

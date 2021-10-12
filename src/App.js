@@ -36,11 +36,8 @@ function App() {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       setUser(user.auth.currentUser)
-      const uid = user.uid;
     } else {
-      console.log('找不到登入的人')
-      // User is signed out
-      // ...
+
     }
   });
 

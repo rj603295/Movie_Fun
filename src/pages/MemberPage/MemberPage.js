@@ -14,6 +14,7 @@ import { getMovieDeatil } from '../../WebAPI'
 import AuthContext from '../../context'
 import Movie from '../../components/Movie'
 import Comment from '../../components/Comments'
+import Loading from '../../components/Loading'
 
 const Container = styled.div`
   background: #1C1C1C;
@@ -33,6 +34,9 @@ const Wrapper = styled.div`
   }
   @media (max-width: 415px) {
     max-width: 80%;
+    .title{
+      font-size: 20px;
+    }
   }
 `
 const MemberDetailSection = styled.div`
@@ -48,6 +52,9 @@ const LeftContainer = styled.div`
   p{
     padding: 5% 0;
   }
+  @media (max-width: 415px) {
+    font-size: 18px;
+  }
 `
 const RightContainer = styled.div`
   font-size: 0.45rem;
@@ -58,6 +65,9 @@ const RightContainer = styled.div`
   .user-content{
     padding: 5% 0;
     line-height: 1.5;
+  }
+  @media (max-width: 415px) {
+    font-size: 14px;
   }
 `
 const FavoriteMovieSection = styled.div`
@@ -132,6 +142,7 @@ export default function MemberPage() {
   const [nicknameValue, setNicknameValue] = useState("")
   const [currentCommentPage, setCurrentCommentPage] = useState(1)
   const [totalCommentPage, settotalCommentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
   const { user } = useContext(AuthContext)
   const history = useHistory()
   if(!user){
@@ -139,6 +150,7 @@ export default function MemberPage() {
   }
   useEffect(() => {
     if(user){
+
       const db = getDatabase()
       const memberFavoriteRef = ref(db, 'favorite/' + user.uid)
       let keyArr = []
@@ -188,6 +200,7 @@ export default function MemberPage() {
 
   useEffect(() => {
     async function fetchData() {
+      setIsLoading(true)
       let arr = []
       for(let i = 0; i < favoriteID.length; i++) {
         await getMovieDeatil(favoriteID[i]).then((res) => {
@@ -196,6 +209,7 @@ export default function MemberPage() {
         })
       }
       setFavoriteMovie(arr)
+      setIsLoading(false)
     }
     fetchData()
   }, [favoriteID])
@@ -297,6 +311,7 @@ export default function MemberPage() {
   }
   return (
     <Container>
+      <Loading isLoading={isLoading} />
       <Wrapper>
         <h2 className="title">帳戶</h2>
         <MemberDetailSection>

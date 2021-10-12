@@ -1,5 +1,6 @@
 .Carousel {
   position: relative;
+  touch-action: none;
 }
 
 .Carousel__railWrapper {

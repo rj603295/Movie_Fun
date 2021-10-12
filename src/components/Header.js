@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { getSearchData } from '../WebAPI'
@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faUserCircle, faBars } from '@fortawesome/free-solid-svg-icons'
 import { getAuth, signOut } from "firebase/auth"
 import AuthContext from '../context'
+import { getUserDeviceType }from '../utils.js'
 
 const HeaderContainer = styled.div`
   align-items: center;
@@ -22,6 +23,7 @@ const HeaderContainer = styled.div`
   .RWD-S{
     display: none;
   }
+
   @media (max-width: 415px) {
     .RWD-S{
       display: block;
@@ -105,6 +107,11 @@ const Search = styled.div`
     font-size: 0.5rem;
     text-indent: 10px;
   }
+  input, textarea {
+
+    font-size: initial;
+    
+    }
   @media (max-width: 415px) {
     width: 90%;
     margin: 0 auto;
@@ -169,6 +176,10 @@ const HamList = styled.div`
   @media (max-width: 415px) {
     display: flex;
     color: black;
+    a{
+      font-size: 14px;
+    }
+
     .RWD-S{
       display: block;
     } 
@@ -181,6 +192,12 @@ function Header({ isHide }) {
   const [isHamOpen, setIsHamOpen] = useState(false)
   const [isHamSearchOpen, setIsHamSearchOpen] = useState(false)
   const { user, setUser } = useContext(AuthContext)
+  const userDevice = useRef()
+
+  useEffect(() => {
+    userDevice.current = getUserDeviceType()
+    console.log(userDevice.current)
+  }, [])
 
   const handleKeyPressSearch = (e) => {
     if(e.key === 'Enter'){
@@ -232,7 +249,7 @@ function Header({ isHide }) {
     }
   },[isHide])
   return (
-    <HeaderContainer style={{top: isHide ? '-200px' : '0px'}}>
+    <HeaderContainer style={!userDevice.current ? {top: isHide ? '-200px' : '0px'} : {top: '0px'}}>
       <Wrapper>
         <Brand to="/">Fun電影</Brand>
         <Search className="RWD-L">

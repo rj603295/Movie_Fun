@@ -45,7 +45,7 @@ const RatingList = styled.div`
 `
 const Score = styled.span`
   display: inline-block;
-  font-size: 0.5rem;
+  font-size: 18px;
 `
 
 export default function Rating({Ratings, logoWidth="75px"}) { 

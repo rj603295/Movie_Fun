@@ -55,20 +55,20 @@ export default function SearchGenrePage() {
   const [currentPage, setCurrentPage] = useState('')
   const [totalPage, setTotalPage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const isRatingLoading = useRef(Array(20).fill(true))
+  const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
+  //const isRatingLoading = useRef(Array(20).fill(true))
   const { id } = useParams()
   //拿到此類型的電影集
   useEffect(() => {
-    // setIsLoading(true)
     if(id !== '') {
         getGenreSearch(id).then((res) => {
-          console.log(res)
+          setIsLoading(true)
           setCurrentPage(res.page)
           setTotalPage(res.total_pages)
           setMovies(res.results)
+          setIsLoading(false)
         })
     } 
-    setIsLoading(false)
   }, [id])
   //取得此類型電影集評分
   useEffect(() => {
@@ -79,15 +79,27 @@ export default function SearchGenrePage() {
       for(let i = 0; i < movies.length; i++) {
         await getIMDBID(movies[i].id).then((res) => {
           arr.push(res.imdb_id)
+        }).catch(() => {
+          arr.push(null)
         })
       }
       for(let i = 0; i < arr.length; i++) {
         await getMovieRating(arr[i]).then((res) => {
           arr2.push(res.Ratings)
-          isRatingLoading.current[i] = false
+          let a = res.Ratings
+          setRating(prevCount => [...prevCount, a])
+          
+          setIsRatingLoading(prev => prev.map((item, index) => {
+            if (index !== i) return item
+            return false
+          }))
+          //isRatingLoading.current[i] = false
+          //Sconsole.log(`${i}`,isRatingLoading.current[i])
+        }).catch(() => {
+          setRating(prevCount => [...prevCount, []])
         })
       }
-      setRating(arr2)
+      // setRating(arr2)
     }
     getMoviesRatings()
   }, [movies])
@@ -107,11 +119,10 @@ export default function SearchGenrePage() {
     history.push(`/search/genre/${id}`)
   }
   const handlePageChange = (page) => {
-
     window.scrollTo(0, 0)
     setIsLoading(true)
-
-    isRatingLoading.current = Array(20).fill(true)
+    setRating([])
+    setIsRatingLoading(Array(20).fill(true))
     if(id !== '') {
       getGenreSearch(id, page).then((res) => {
         setCurrentPage(res.page)
@@ -142,10 +153,10 @@ export default function SearchGenrePage() {
       </select>}
       </TypeList> */}
         {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-L"><Movie key={item.id} movie={item} id={item.id} imgUrl={`https://image.tmdb.org/t/p/w500${item.poster_path}`} rating={Rating[index]} isRatingLoading={isRatingLoading.current[index]} isRating={true}/></ItemContainer>
+          return <ItemContainer className="RWD-L"><Movie key={item.id} movie={item} rating={Rating[index]} isRatingLoading={isRatingLoading[index]} isRating={true}/></ItemContainer>
         })}
         {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-S"><Movie key={item.id} movie={item} id={item.id} imgUrl={`https://image.tmdb.org/t/p/w500${item.poster_path}`} rating={Rating[index]} isRatingLoading={isRatingLoading.current[index]} isRating={true}/></ItemContainer>
+          return <ItemContainer className="RWD-S"><Movie key={item.id} movie={item} rating={Rating[index]} isRatingLoading={isRatingLoading[index]} isRating={true}/></ItemContainer>
         })}
       </ResultContainer>
       <PageContainer>

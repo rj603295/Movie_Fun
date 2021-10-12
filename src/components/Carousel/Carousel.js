@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import './Carousel.css'
 
 const Item = ({ children }) => <div>{children}</div>
@@ -6,6 +6,22 @@ const Item = ({ children }) => <div>{children}</div>
 const CAROUSEL_ITEM = 'CAROUSEL_ITEM'
 const Carousel = ({ cols = 1, gap = 10, children }) => {
   const [currentPage, setCurrentPage] = useState(0)
+
+  // const [startX, setStartX] = useState(0)
+  // const [startY, setStartY] = useState(0)
+  // const [endX, setEndX] = useState(0)
+  // const [endY, setEndY] = useState(0)
+
+  // let startX = useRef(0)
+  // let startY = useRef(0)
+  // let endX = useRef(0)
+  // let endY = useRef(0)
+
+  let startX = 0
+  let startY = 0
+  let endX = 0
+  let endY = 0
+
   const itemList = React.Children.toArray(children).filter(
     child => child.type.displayName === CAROUSEL_ITEM
   )
@@ -30,8 +46,56 @@ const Carousel = ({ cols = 1, gap = 10, children }) => {
     setCurrentPage(p => p + 1)
   }, [])
 
+  //自己改Start
+  const handleTouchStart = (e) => {
+    // e.preventDefault()
+    console.log('start',e.touches[0].pageX)
+    // setStartX(e.touches[0].pageX)
+    // setStartY(e.touches[0].pagey)
+    startX = e.touches[0].pageX
+    startY = e.touches[0].pageY
+  }
+  const handleTouchMove = (e) => {
+    console.log('move',e.touches[0].pageX)
+    // e.preventDefault()
+    // setEndX(e.touches[0].pageX)
+    // setEndY(e.touches[0].pagey)
+    endX = e.touches[0].pageX
+    endY = e.touches[0].pageY
+  }
+  
+  const handleTouchEnd = (e) => {
+    let X = endX - startX
+    let Y = endY - startY
+    console.log('X', X)
+    if (X > 0 && Math.abs(X) > Math.abs(Y)) {
+      //向右
+      if (currentPage > 0) {
+        setCurrentPage(p => p - 1)
+      }
+
+      console.log('向右');
+    } else if (X < 0 && Math.abs(X) > Math.abs(Y)) {
+      //向左
+      console.log('向左');
+      if(currentPage !== page - 1){
+        setCurrentPage(p => p + 1)
+      }
+
+    } else if (Y > 0 && Math.abs(Y) > Math.abs(X)) {
+      //向下
+      console.log('向下');
+    } else if (Y < 0 && Math.abs(Y) > Math.abs(X)) {
+      //向上
+      console.log('向上');
+    } else {
+      //没有
+      console.log('没有');
+    }
+  }
+  //自己改End
   return (
-    <div className="Carousel">
+    <div className="Carousel" onTouchStart={(e) => handleTouchStart(e)} onTouchMove={e => handleTouchMove(e)} onTouchEnd={(e) => handleTouchEnd(e)}>
       <span
         className="Carousel__btn--prev"
         hidden={currentPage <= 0}

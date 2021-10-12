@@ -1,7 +1,7 @@
 export const getPopular = () => fetch(`https://api.themoviedb.org/3/movie/popular?api_key=2be0c0fc4fb985246d2226af126346c2&language=en-US&region=TW&page=1`)
 .then((res) => res.json())
 
-export const getMovieRating = (id) => fetch(`http://www.omdbapi.com/?i=${id}&apikey=382fad7&tomatoes=true`)
+export const getMovieRating = (id) => fetch(`https://www.omdbapi.com/?i=${id}&apikey=382fad7&tomatoes=true`)
 .then((res) => res.json())
 
 export const getIMDBID = (id) => fetch(`https://api.themoviedb.org/3/movie/${id}/external_ids?api_key=2be0c0fc4fb985246d2226af126346c2`)

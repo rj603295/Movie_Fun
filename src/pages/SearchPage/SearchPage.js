@@ -81,6 +81,10 @@ const ContentContainer = styled.div`
       -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       white-space: normal;
+      font-size: 1rem;
+    }
+    h2{
+      font-size: 2rem;
     }
   }
   @media (max-width: 415px) {
@@ -142,7 +146,6 @@ function People ({ person }) {
         <p>代表作: {person.known_for.map((item) => {
           return <li>{item.title}</li>
         })}</p>
-        {/* <p>{person.overview}</p> */}
       </ContentContainer>
     </MovieContainer>
   )
@@ -186,6 +189,7 @@ export default function SearchPage() {
   const [currentGenre, setCurrentGenre] = useState(0)
   const [currentPage, setCurrentPage] = useState('')
   const [totalPage, setTotalPage] = useState('')
+  const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
   const { query } = useParams()
 
   useEffect(() => {
@@ -248,9 +252,15 @@ export default function SearchPage() {
         for(let i = 0; i < arr.length; i++) {
           await getMovieRating(arr[i]).then((res) => {
             arr2.push(res.Ratings)
+            let a = res.Ratings
+            setRating(prevCount => [...prevCount, a])
+            setIsRatingLoading(prev => prev.map((item, index) => {
+              if (index !== i) return item
+              return false
+            }))
           })
         }
-        setRating(arr2)
+        //setRating(arr2)
         //setIsLoading(false)
       }
       getSearchMovieRating().then(() => {})

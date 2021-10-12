@@ -17,6 +17,9 @@ const ImgContainer = styled(Link)`
 const CreditName = styled.p`
   color: white;
   font-size: 0.5rem;
+  @media(max-width: 415px) {
+    font-size: 14px;
+  }
 `
 export default function Person ({ person, isName=true }) { 
   return (

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Link, useHistory } from 'react-router-dom'
 import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth"
 import AuthContext from '../../context'
+import { getUserDeviceType } from '../../utils'
 
 const Container = styled.div`
   color: white;
@@ -17,6 +18,9 @@ const Container = styled.div`
   width: 100vw;
   backdrop-filter: blur(10px);
   position: relative;
+  input{
+    font-size: ${props => props.isMobileDevice ? "initial" : ""}
+  }
 `
 const LoginSection = styled.div`
   background: rgba(0, 0, 0, 0.5);
@@ -42,14 +46,24 @@ const LoginSection = styled.div`
   input[type="password"] {
     margin-bottom: 5%;
   }
-  @media (max-width: 376px) {
+  @media (max-width: 415px) {
     min-width: 80%;
     padding: 60px 0;
+    h2{
+      font-size: 20px;
+    }
+    font-size: 16px;
   }
+  
+`
+const ErrorMessage = styled.p`
+  color: red;
+  font-weight: bold;
 `
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
   const { setUser } = useContext(AuthContext)
   const history = useHistory()
   const handleLogin = () => {
@@ -66,23 +80,34 @@ setPersistence(auth, browserLocalPersistence)
         }
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        const errorCode = error.code
+
+        if(errorCode === 'auth/wrong-password'){
+          setErrorMessage("密碼錯誤")
+        }
+        if(errorCode === 'auth/user-not-found'){
+          setErrorMessage("找不到用戶")
+        }
+        const errorMessage = error.message
+
       });
     })
     .catch((error) => {
       const errorCode = error.code;
+      console.log('errCode', errorCode)
       const errorMessage = error.message;
+      console.log('errMessage', errorMessage)
     });
   }
   return (
-    <Container>
+    <Container isMobileDevice={getUserDeviceType()}>
       <LoginSection>
         <h2>登入</h2>
         <label>帳號：</label>
         <input type="email" onChange={(e) => {setUsername(e.target.value)}} placeholder="電郵"/><br />
         <label>密碼：</label>
         <input type="password" onChange={(e) => {setPassword(e.target.value)}} placeholder="密碼"/><br />
+        <ErrorMessage>{errorMessage}</ErrorMessage>
         <button onClick={handleLogin}>登入</button><br />
         <Link to="/register">還沒有帳號嗎？點我註冊</Link>
       </LoginSection> 

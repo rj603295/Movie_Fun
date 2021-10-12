@@ -24,6 +24,7 @@ import Movie from '../../components/Movie'
 import Person from '../../components/Person'
 import Loading from '../../components/Loading'
 import Comment from '../../components/Comments'
+import { getUserDeviceType }from '../../utils.js'
 
 const Title = styled.h2`
   font-size: 5rem;
@@ -51,21 +52,6 @@ const MovieContainer = styled.div`
     .RWD-L{
       display: none;
     }
-  }
-`
-const ImgContainer = styled(Link)`
-  display: flex;
-  height: auto;
-  width: 100%;
-  padding: 70% 0;
-  align-items: end;
-  justify-content: end;
-  margin-right: 10px;
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-  @media (max-width: 415px) {
-    
   }
 `
 const CarouselConatiner = styled.div`
@@ -247,9 +233,11 @@ export default function HomePage() {
   const [genres, setGenre] = useState([])
   const [hotPeople, setHotPeople] = useState([])
   const [hotComments, setHotComments] = useState([])
-  const [hotCommentsKey, setHotCommentsKey] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const isRatingLoading = useRef(Array(20).fill(true))
+  const [isLoading, setIsLoading] = useState(false)
+  const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
+ // const isRatingLoading = useRef(Array(20).fill(true))
+
+  console.log('render')
   //初始化
   useEffect(() => {
     //取得首頁單一電影
@@ -278,23 +266,31 @@ export default function HomePage() {
     getFirstHotMovie()
     //取得熱門電影前20名
     getPopular().then((data) => {
+      setIsLoading(true)
       setMovies(data.results)
+      setIsLoading(false)
     })
     //取得即將上映20部電影
     getUpcomming().then((data) => {
+      setIsLoading(true)
       setUpcomming(data.results)
+      setIsLoading(false)
     })
     //取得熱門演員前20名
     getPopularPeople().then((data) => {
+      setIsLoading(true)
       setHotPeople(data.results)
+      setIsLoading(false)
     })
     //取得各種類型
     getGenre().then((res) => {
+      setIsLoading(true)
       let genreArr = []
       for(let i = 0; i < res.genres.length; i++) {
         genreArr.push(res.genres[i])
       }
       setGenre(genreArr)
+      setIsLoading(false)
     })
     //取得熱門評論
     const db = getDatabase();
@@ -314,13 +310,12 @@ export default function HomePage() {
         )
       }
       setHotComments(arr)
-      setHotCommentsKey(keyArr)
     });
 
   }, []);
 //取得Popular movies分數
   useEffect(() => {
-    // setIsLoading(true)
+    //setIsLoading(true)
     let arr = []
     let arr2 = []
     async function getPopularMovieRating() {
@@ -331,14 +326,23 @@ export default function HomePage() {
       }
       for(let i = 0; i < arr.length; i++) {
         await getMovieRating(arr[i]).then((res) => {
+          console.log(`${i}`,res.Ratings)
           arr2.push(res.Ratings)
-          isRatingLoading.current[i] = false
+          let a = res.Ratings
+          setRating(prevCount => [...prevCount, a])
+          setIsRatingLoading(prev => prev.map((item, index) => {
+            if (index !== i) return item
+            return false
+          }))
+          //isRatingLoading.current[i] = false
+        }).catch((err) => {
+          console.log(err)
         })
       }
-      setRating(arr2)
-      // setIsLoading(false)
+      // setRating(arr2)
+
     }
-    getPopularMovieRating().then(() => {setIsLoading(false)})
+    getPopularMovieRating()  //.then(() => {setIsLoading(false)})
 
   }, [movies])
 
@@ -372,7 +376,7 @@ export default function HomePage() {
             <div className="RWD-L">
             <Carousel cols={4} gap={20}>
               {movies.map((movie, index) =>
-                <Carousel.Item style={{width: "30%"}}>
+                <Carousel.Item>
                   <Movie
                   key={movie.id}
                   movie={movie}
@@ -380,7 +384,7 @@ export default function HomePage() {
                   rating={Rating[index]}
                   id={movie.id}
                   isRating={true}
-                  isRatingLoading={isRatingLoading.current[index]} />
+                  isRatingLoading={isRatingLoading[index]} />
                 </Carousel.Item>        
               )}
               </Carousel>
@@ -395,7 +399,8 @@ export default function HomePage() {
                   imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                   rating={Rating[index]}
                   id={movie.id}
-                  isRating={true} />
+                  isRating={true}
+                  isRatingLoading={isRatingLoading[index]} />
                 </Carousel.Item>        
               )}
               </Carousel>
@@ -430,7 +435,6 @@ export default function HomePage() {
                     key={movie.id}
                     movie={movie}
                     imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    rating={upcommingRating[index]}
                     id={movie.id}/>
                   </Carousel.Item>        
                 )}
