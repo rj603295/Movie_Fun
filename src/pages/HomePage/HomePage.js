@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { 
@@ -24,7 +24,6 @@ import Movie from '../../components/Movie'
 import Person from '../../components/Person'
 import Loading from '../../components/Loading'
 import Comment from '../../components/Comments'
-import { getUserDeviceType }from '../../utils.js'
 
 const Title = styled.h2`
   font-size: 5rem;
@@ -179,10 +178,6 @@ const HotPeopleSection = styled.div`
   display: flex;
   justify-content: center;
 `
-const CreditName = styled.p`
-  color: white;
-  font-size: 0.5rem;
-`
 const HotCommentsSection = styled.div`
   color: white;
   padding-bottom: 20px;
@@ -229,15 +224,12 @@ export default function HomePage() {
   const [Rating, setRating] = useState([])
   const [trend, setTrend] = useState([])
   const [upcomming, setUpcomming] = useState([])
-  const [upcommingRating, setUpcommingRating] = useState([])
   const [genres, setGenre] = useState([])
   const [hotPeople, setHotPeople] = useState([])
   const [hotComments, setHotComments] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
- // const isRatingLoading = useRef(Array(20).fill(true))
 
-  console.log('render')
   //初始化
   useEffect(() => {
     //取得首頁單一電影
@@ -251,9 +243,13 @@ export default function HomePage() {
         });
         setTrend(data[0])
         trendData = data[0]
+      }).catch((err) => {
+        return err
       })
       await getIMDBID(trendData.id).then((res) => {
         imdb_id = res.imdb_id
+      }).catch((err) => {
+        return err
       })
       await getMovieRating(imdb_id).then((res) => {
         let ratingArr = res.Ratings
@@ -261,6 +257,8 @@ export default function HomePage() {
           ...prevState,
           Ratings: ratingArr
         }))
+      }).catch((err) => {
+        return err
       })
     }
     getFirstHotMovie()
@@ -269,18 +267,24 @@ export default function HomePage() {
       setIsLoading(true)
       setMovies(data.results)
       setIsLoading(false)
+    }).catch((err) => {
+      return err
     })
     //取得即將上映20部電影
     getUpcomming().then((data) => {
       setIsLoading(true)
       setUpcomming(data.results)
       setIsLoading(false)
+    }).catch((err) => {
+      return err
     })
     //取得熱門演員前20名
     getPopularPeople().then((data) => {
       setIsLoading(true)
       setHotPeople(data.results)
       setIsLoading(false)
+    }).catch((err) => {
+      return err
     })
     //取得各種類型
     getGenre().then((res) => {
@@ -291,6 +295,8 @@ export default function HomePage() {
       }
       setGenre(genreArr)
       setIsLoading(false)
+    }).catch((err) => {
+      return err
     })
     //取得熱門評論
     const db = getDatabase();
@@ -326,7 +332,6 @@ export default function HomePage() {
       }
       for(let i = 0; i < arr.length; i++) {
         await getMovieRating(arr[i]).then((res) => {
-          console.log(`${i}`,res.Ratings)
           arr2.push(res.Ratings)
           let a = res.Ratings
           setRating(prevCount => [...prevCount, a])
@@ -334,15 +339,12 @@ export default function HomePage() {
             if (index !== i) return item
             return false
           }))
-          //isRatingLoading.current[i] = false
         }).catch((err) => {
-          console.log(err)
+          return err
         })
       }
-      // setRating(arr2)
-
     }
-    getPopularMovieRating()  //.then(() => {setIsLoading(false)})
+    getPopularMovieRating()
 
   }, [movies])
 
@@ -421,7 +423,6 @@ export default function HomePage() {
                     key={movie.id}
                     movie={movie}
                     imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    rating={upcommingRating[index]}
                     id={movie.id}/>
                   </Carousel.Item>        
                 )}

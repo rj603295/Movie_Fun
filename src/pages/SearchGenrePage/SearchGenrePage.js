@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useHistory, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {
   getGenreSearch,
   getGenre,
@@ -48,7 +48,6 @@ const ItemContainer = styled.div`
   }
 `
 export default function SearchGenrePage() {
-  const history = useHistory()
   const [movies, setMovies] = useState([])
   const [genres, setGenre] = useState([])
   const [Rating, setRating] = useState([])
@@ -115,9 +114,6 @@ export default function SearchGenrePage() {
       setGenre(genreArr)
     })
   }, [])
-  const handleTypeChange = (id) => {
-    history.push(`/search/genre/${id}`)
-  }
   const handlePageChange = (page) => {
     window.scrollTo(0, 0)
     setIsLoading(true)
@@ -145,13 +141,6 @@ export default function SearchGenrePage() {
         }
       </TypeTitle>
       <ResultContainer>
-      {/* <TypeList>
-      {genres && <select name="genre" id="genre" onChange={(e) => {handleTypeChange(e.target.value)}}>
-          {genres.map((genre) => {
-            return <option value={genre.id}>{genre.name}</option>
-          })}
-      </select>}
-      </TypeList> */}
         {movies && movies.map((item, index) => {
           return <ItemContainer className="RWD-L"><Movie key={item.id} movie={item} rating={Rating[index]} isRatingLoading={isRatingLoading[index]} isRating={true}/></ItemContainer>
         })}

@@ -68,6 +68,9 @@ const RightContainer = styled.div`
   }
   @media (max-width: 415px) {
     font-size: 14px;
+    button{
+      font-size: 14px;
+    }
   }
 `
 const FavoriteMovieSection = styled.div`
@@ -128,7 +131,7 @@ const CommentSection = styled.div`
   margin: 0 auto;
 `
 const Pagination = styled.div`
-
+  margin-top: 5%;
 `
 const Title = styled.p`
   font-size: 1rem;
@@ -204,7 +207,6 @@ export default function MemberPage() {
       let arr = []
       for(let i = 0; i < favoriteID.length; i++) {
         await getMovieDeatil(favoriteID[i]).then((res) => {
-          console.log(res)
           arr.push(res)
         })
       }
@@ -230,13 +232,18 @@ export default function MemberPage() {
   }
   const handleNicknameSubmit = () => {
     const auth = getAuth()
-    updateProfile(auth.currentUser, {
-      displayName: nicknameValue
-    }).then(() => {
-      console.log('修改暱稱成功')
-    }).catch((error) => {
-      console.log('修改暱稱失敗')
-    });
+    if(nicknameValue.trim() !== "") {
+      updateProfile(auth.currentUser, {
+        displayName: nicknameValue
+      }).then(() => {
+        setIsNicknameEdit(false)
+      }).catch((error) => {
+        return error
+      })
+    }else{
+      alert('暱稱不可為空白')
+    }
+
   }
   const handleCommentOpen = (id) => {
     setPersonalComments(personalComments.map((item) => {
@@ -327,7 +334,7 @@ export default function MemberPage() {
               <p>暱稱：{!isNicknameEdit ? (user.providerData[0].displayName ? user.providerData[0].displayName : "尚未填寫") : false}</p>
               {isNicknameEdit && 
               <div>
-                <input type="text" value={nicknameValue} onChange={(e) => {handleNicknameInputChange(e)}}/>
+                <input type="text" value={nicknameValue} onChange={(e) => {handleNicknameInputChange(e)}}/><br />
                 <button onClick={handleNicknameSubmit}>確認</button>
                 <button onClick={handleNicknameInputOpen}>取消</button>
               </div>

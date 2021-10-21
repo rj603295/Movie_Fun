@@ -49,7 +49,6 @@ function App() {
       setIsHide(true)
     }
     lastScrollY = st
-    //console.log(lastScrollY.current.value)
   }
 
     window.addEventListener('scroll', () => {  
@@ -62,7 +61,6 @@ function App() {
         onValue(movieRef, (snapshot) => {
           const data = snapshot.val()
           setUserFavorite(data)
-          console.log(data)
         });
       }
     

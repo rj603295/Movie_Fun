@@ -7,10 +7,10 @@ const Container = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  height: 100vh;
 
   width: 100vw;
   backdrop-filter: blur(10px);
+  padding: 0 0 5% 0;
   @media (max-width: 415px) {
     height: auto;
     padding-bottom: 5%;
@@ -18,14 +18,20 @@ const Container = styled.div`
   }
 `
 const AboutSection = styled.div`
-  padding-top: 10%;
+  padding-top: 8%;
   h2{
-    font-size: 1rem;
+    font-size: 1.3rem;
     margin-bottom: 2%;
+  }
+  p{
+    font-size: 0.7rem;
   }
   @media (max-width: 415px) {
     h2{
-      font-size: 2.5rem;
+      font-size: 3rem;
+    }
+    p{
+      font-size: 2rem;
     }
   }
 `
@@ -54,23 +60,34 @@ const LogoSection = styled.div`
     }
   }
 `
+const SubTitle = styled.p`
+  fon-size: 0.5rem;
+  @media (max-width: 415px) {
+    margin-top: 20%;
+  }
+`
 const Wrapper = styled.div`
   max-width: 50%;
   margin: 0 auto;
   margin-top: 5%;
+  ${SubTitle} {
+    margin-bottom: 5%;
+  }
   @media (max-width: 415px) {
     max-width: 80%;
   }
 `
 
+
 export default function AboutPage() {
   return (
     <Container>
       <AboutSection>
-      <h2>About us</h2>
+      <h2>About</h2>
       <p>找評分，Fun電影</p>
       </AboutSection>
       <Wrapper>
+      <SubTitle>三大評分網，一次滿足</SubTitle>
       <LogoSection>
         <img className="IMDB" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg"/>
         <p>IMDb的用戶即可以以「1～10顆星」為電影評分，之後IMDb會以數據過濾機制及最小投票數量的限制（目前為1250票）來計算出一個加權平均星數作為評分。 因為IMDb以經常投票的用戶來計票，所以評分算是具客觀參考價值。</p>

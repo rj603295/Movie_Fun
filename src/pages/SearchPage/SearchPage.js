@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link, useHistory, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {
   getGenre,
   getSearchData,
@@ -16,6 +16,7 @@ const Container = styled.div`
   line-height: 1.5;
   color: white;
   padding-top: 8%;
+  min-height: 100vh;
   @media (max-width: 415px) {
     display: block;
     padding-top: 15%;
@@ -45,19 +46,6 @@ const MovieContainer = styled.div`
     max-width: 90%;
     grid-template-columns: 40% 60%;
   }
-`
-const ImgContainer = styled.div`
-  width:fit-content;
-  height: fit-content;
-    img{
-      height: 400px;
-    }
-    @media (max-width: 415px) {
-      img{
-        height: 200px;
-      }
-    }
-
 `
 const ContentContainer = styled.div`
   margin: 0 auto;
@@ -103,14 +91,6 @@ const ClassificationList = styled.div`
   min-width: 80%;
   margin-top: 10%;
   font-size: 0.5rem;
-  li{
-    list-style: none;
-    padding-left: 0;
-    width: 100%;
-    padding: 5% 0;
-    border: 1px solid white;
-    cursor: pointer;
-  }
   @media (max-width: 415px) {
     display: none;
   }
@@ -136,6 +116,27 @@ const ItemContainer = styled.div`
       height: 200px;
     }
   }
+`
+const NotFoundMessage = styled.p`
+  color: white;
+  text-align: left;
+  margin-top: 5%;
+  @media (max-width: 415px) {
+    text-align: center;
+  }
+`
+const Filter = styled.li`
+  ${(props) => props.$active &&
+    `
+      background: white;
+      color: black;
+    `}
+  list-style: none;
+  padding-left: 0;
+  width: 100%;
+  padding: 5% 0;
+  border: 1px solid white;
+  cursor: pointer;
 `
 function People ({ person }) {
   return(
@@ -174,7 +175,6 @@ function SearchMovie ({ movie, rating }) {
 }
 
 export default function SearchPage() {
-  const history = useHistory()
   const [movies, setMovies] = useState([])
   const [genres, setGenre] = useState([])
   const [rating, setRating] = useState([])
@@ -189,33 +189,33 @@ export default function SearchPage() {
   const [currentGenre, setCurrentGenre] = useState(0)
   const [currentPage, setCurrentPage] = useState('')
   const [totalPage, setTotalPage] = useState('')
-  const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
   const { query } = useParams()
 
   useEffect(() => {
     if(query !== '' ) {
+      setRating([])
+      setMovies([])
       getSearchData(query).then((res) => {
         setCurrentPage(res.page)
         setTotalPage(res.total_pages)
-        console.log('res',res)
         let movieCount = 0
         let peopleCount = 0
         let genreArr = []
-        res.results.map((item) => {
+        res.results.forEach((item) => {
           if(item.media_type === 'movie') {
-            item.genre_ids.map((genreID) => {
-              const isFind = genreArr.find((itemID) => itemID === genreID)
-               if(!isFind) {
-                 genreArr.push(genreID)
-                } 
-              })
+            item.genre_ids.forEach((genreID) => {
+            const isFind = genreArr.find((itemID) => itemID === genreID)
+              if(!isFind) {
+                genreArr.push(genreID)
+              } 
+            })
           }
 
           if(item.media_type === 'movie'){
             return movieCount ++
           }
           if(item.media_type === 'tv') {
-            return 
+            return null
           }
           if(item.media_type === 'person') {
             return peopleCount ++
@@ -223,23 +223,22 @@ export default function SearchPage() {
         })
         let allCount = movieCount + peopleCount
         setsearchItemGenreID(genreArr)
-       setMovies(res.results)
-       settypesCount({
-         allCount,
-         movieCount,
-         peopleCount
-       })
+        setMovies(res.results)
+        settypesCount({
+          allCount,
+          movieCount,
+          peopleCount
+        })
       })
     }
   }, [query])
 
   //取得搜尋電影的評分
   useEffect(() => {
-
+      setRating([])
       let arr = []
       let arr2 = []
       async function getSearchMovieRating() {
-
         for(let i = 0; i < movies.length; i++) {
           if(movies[i].media_type === 'movie') {
             await getIMDBID(movies[i].id).then((res) => {
@@ -254,16 +253,10 @@ export default function SearchPage() {
             arr2.push(res.Ratings)
             let a = res.Ratings
             setRating(prevCount => [...prevCount, a])
-            setIsRatingLoading(prev => prev.map((item, index) => {
-              if (index !== i) return item
-              return false
-            }))
           })
         }
-        //setRating(arr2)
-        //setIsLoading(false)
       }
-      getSearchMovieRating().then(() => {})
+      getSearchMovieRating()
   }, [movies])
 
   useEffect(() => {
@@ -282,11 +275,7 @@ export default function SearchPage() {
       setGenre(arr2)
     })
   }, [searchItemGenreID])
-  const handleTypeChange = (id) => {
-    history.push(`/search/genre/${id}`)
-  }
   const handleCurrentType = (e) => {
-    console.log(e.target.dataset.value)
     if(e.target.nodeName === 'LI') {
       if(e.target.dataset.value === '0') {
         setCurrentType(0)
@@ -314,13 +303,12 @@ export default function SearchPage() {
     getSearchData(query, page).then((res) => {
       setCurrentPage(res.page)
       setTotalPage(res.total_pages)
-      console.log('res',res)
       let movieCount = 0
       let peopleCount = 0
       let genreArr = []
-      res.results.map((item) => {
+      res.results.forEach((item) => {
         if(item.media_type === 'movie') {
-          item.genre_ids.map((genreID) => {
+          item.genre_ids.forEach((genreID) => {
             const isFind = genreArr.find((itemID) => itemID === genreID)
              if(!isFind) {
                genreArr.push(genreID)
@@ -350,16 +338,13 @@ export default function SearchPage() {
   }
   return (
     <Container>
-            {/* <FilterIcon>
-      <FontAwesomeIcon icon={faFilter} />
-      </FilterIcon> */}
       <Wrapper>
       <ClassificationList>
         <ul onClick={(e) => {handleCurrentType(e)}}>
-          <li $active={currentType === 0} data-value="0">全部 {typesCount.allCount}</li>
-          <li $active={currentType === 0} data-value="1">電影 {typesCount.movieCount}</li>
-          <li $active={currentType === 1} data-value="2">人物 {typesCount.peopleCount}</li>
-          <li $active={currentType === 2} onClick={handleisTypeListOpen}>類型</li>
+          <Filter $active={currentType === 0} data-value="0">全部 {typesCount.allCount}</Filter>
+          <Filter $active={currentType === 1} data-value="1">電影 {typesCount.movieCount}</Filter>
+          <Filter $active={currentType === 2} data-value="2">人物 {typesCount.peopleCount}</Filter>
+          <Filter $active={currentType === 3} onClick={handleisTypeListOpen}>類型</Filter>
           {genres && isTypeListOpen &&
             genres.map((genre) => {
               return <li className="genre-DDL" data-value="3" value={genre.id} onClick={(e) => {handleCurrentGenre(e)}}>{genre.name}</li>
@@ -369,7 +354,7 @@ export default function SearchPage() {
 
 
       <ResultContainer>
-      {movies && currentType === 0 && 
+      {movies.length !== 0 && currentType === 0 && 
         movies.map((item, index) => {
           if(item.media_type === 'movie') {
             return <SearchMovie key={item.id} movie={item} rating={rating[index]} /> 
@@ -377,7 +362,7 @@ export default function SearchPage() {
           if(item.media_type === 'person') {
             return <People key={item.id} person={item}/>
           } 
-
+          return null
         }) }
         {movies && currentType === 1 && typesCount.movieCount !== 0 && 
           movies
@@ -404,7 +389,6 @@ export default function SearchPage() {
             })
             .filter((item) => {
               let genreFilter = false
-              //item.genre_id.find((genre) => genre === currentGenre)
               item.genre_ids.some((genre) => {
                 return genre === currentGenre ? genreFilter = true : genreFilter = false
               })
@@ -414,13 +398,13 @@ export default function SearchPage() {
               return <SearchMovie key={item.id} movie={item} rating={rating[index]}/>
           })
         }
+        {movies.length === 0 && <NotFoundMessage>找不到任何搜尋結果</NotFoundMessage>}
       </ResultContainer>
       </Wrapper>
-
       <PageContainer>
         {currentPage !== 1 ? <button onClick={() => {handlePageChange(currentPage - 1)}}>&lt;</button> : ""}
          {currentPage}
-         {currentPage !== totalPage ? <button onClick={() => {handlePageChange(currentPage + 1)}}>&gt;</button> : ""}
+         {currentPage !== totalPage && totalPage !== 0 ? <button onClick={() => {handlePageChange(currentPage + 1)}}>&gt;</button> : ""}
       </PageContainer>
     </Container>
 

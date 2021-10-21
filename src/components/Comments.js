@@ -224,7 +224,7 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
   return (
     <CommentContainer isMobileDevice={getUserDeviceType()}>
       <TitleWrapper>
-        <TitleSection column={isPosterOpen  ? "10% 80% 10%" : "70% 30%"} RWDS_column={isPosterOpen  ? "20% 65% 15%" : "80% 20%"} >
+        <TitleSection column={isPosterOpen  ? "10% 80% 10%" : "90% 10%"} RWDS_column={isPosterOpen  ? "20% 65% 15%" : "80% 20%"} >
           {/* <ColumnWrapper> */}
             {isPosterOpen && movie &&
             <ImgContainer to={`movie/${comment.movie_id}`} style={{backgroundImage: `url('https://image.tmdb.org/t/p/w500${movie.poster_path}')`}}></ImgContainer>}

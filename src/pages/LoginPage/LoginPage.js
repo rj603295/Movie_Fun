@@ -1,7 +1,12 @@
 import React, { useState, useContext } from 'react'
 import styled from 'styled-components'
 import { Link, useHistory } from 'react-router-dom'
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth"
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence
+} from "firebase/auth"
 import AuthContext from '../../context'
 import { getUserDeviceType } from '../../utils'
 
@@ -70,10 +75,9 @@ export default function LoginPage() {
     const auth = getAuth()
 setPersistence(auth, browserLocalPersistence)
   .then(() => {
-    return signInWithEmailAndPassword(auth, username, password).
-    then((userCredential) => {
+    return signInWithEmailAndPassword(auth, username, password)
+    .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user)
         setUser(user.auth.currentUser)
         if(user) {
           history.push('/')
@@ -88,15 +92,10 @@ setPersistence(auth, browserLocalPersistence)
         if(errorCode === 'auth/user-not-found'){
           setErrorMessage("找不到用戶")
         }
-        const errorMessage = error.message
-
       });
     })
     .catch((error) => {
-      const errorCode = error.code;
-      console.log('errCode', errorCode)
-      const errorMessage = error.message;
-      console.log('errMessage', errorMessage)
+      return error
     });
   }
   return (

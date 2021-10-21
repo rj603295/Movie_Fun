@@ -1,11 +1,26 @@
 import React, { useEffect, useState, useContext } from 'react'
 import styled from 'styled-components'
 import { Link, useParams } from 'react-router-dom'
-import { getMovieDeatil, getMovieRating, getCredits, getSimilar, getVideo, getMovieImage } from '../../WebAPI'
+import {
+  getMovieDeatil,
+  getMovieRating,
+  getCredits,
+  getSimilar,
+  getVideo,
+  getMovieImage
+} from '../../WebAPI'
 import Carousel from '../../components/Carousel'
-import Color, { useColor } from 'color-thief-react'
+import { useColor } from 'color-thief-react'
 import RatingList from '../../components/Rating'
-import { getDatabase, ref, onValue, set, push, query, orderByChild, equalTo } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  push,
+  query,
+  orderByChild,
+  equalTo
+} from "firebase/database";
 import AuthContext from '../../context'
 import { getDate, getCreatedAt } from '../../utils'
 import Comment from '../../components/Comments'
@@ -294,16 +309,14 @@ export default function MovieDetailPage() {
   const [totalCommentPage, settotalCommentPage] = useState(1)
   const { id } = useParams()
   const { user } = useContext(AuthContext)
-  console.log(id)
+ 
   useEffect(() => {
     function getComments() {
-      console.log('我有get評論', id)
       
       const db = getDatabase();
       const posts = query(ref(db, 'comments'), orderByChild("movie_id"), equalTo(id))  
         onValue(posts, (snapshot) => {
           const data = snapshot.val()
-          console.log('data',data)
           let arr = []
           if(data){
             let keys = Object.keys(data)
@@ -345,7 +358,7 @@ export default function MovieDetailPage() {
   if (movie.poster_path) {
     src = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
   }
-  const { data, loading, error } = useColor(src, format, { crossOrigin, quality})
+  const { data } = useColor(src, format, { crossOrigin, quality})
   let backgroundMask = ''
   let lightness = 0
   let colorStr = ''
@@ -557,7 +570,7 @@ export default function MovieDetailPage() {
           </MovieImgSection>
           <h2>預告：</h2>
         <MovieVideoSection>
-            {video && <iframe className="responsive-iframe" src={`https://www.youtube.com/embed/${video.key}?autoplay=1`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>}
+            {video && <iframe className="responsive-iframe" src={`https://www.youtube.com/embed/${video.key}?autoplay=0`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>}
         </MovieVideoSection>
       </Wrapper>
 
@@ -568,7 +581,6 @@ export default function MovieDetailPage() {
       <CommentSection>
         <Comments>
         {comments.length !== 0 ? comments.map((item, index) => {
-            // console.log(item)
             return <Comment handleCommentOpen={handleCommentOpen} comment={item} />
           }) : <NoComment>還沒有任何評論</NoComment>}
           {user ?<button onClick={() => {setisCommentInputOpen(!isCommentInputOpen)}}>新增評論</button> : <Link to="/login">點我登入評論</Link>}

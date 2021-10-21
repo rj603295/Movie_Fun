@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link, useLocation, useHistory } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopyright } from '@fortawesome/free-regular-svg-icons'
 import { faGithub, faFacebook, faInstagram, faTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons'
@@ -21,6 +20,9 @@ const BrandSection = styled.div`
   svg{
     padding: 10px;
   }
+  a{
+    color: white;
+  }
   @media (max-width: 415px) {
     font-size: 18px;
   }
@@ -30,11 +32,11 @@ export default function Footer () {
   return (
     <FooterContainer>
       <BrandSection>
-        <FontAwesomeIcon icon={faGithub} />
-        <FontAwesomeIcon icon={faFacebook} />
-        <FontAwesomeIcon icon={faInstagram} />
-        <FontAwesomeIcon icon={faTwitter} />
-        <FontAwesomeIcon icon={faYoutube} />
+        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faGithub} /></a>
+        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faFacebook} /></a>
+        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faInstagram} /></a>
+        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faTwitter} /></a>
+        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faYoutube} /></a> 
       </BrandSection>
       <FontAwesomeIcon icon={faCopyright} /><span>  2021 - Moive Fun Inc.</span>
     </FooterContainer>

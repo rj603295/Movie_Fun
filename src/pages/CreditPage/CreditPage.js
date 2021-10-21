@@ -61,6 +61,7 @@ const FamousMovieSection = styled.div`
 `
 const Biography = styled.p`
   margin-top: 3%;
+  line-height: 1.5;
   @media (max-width: 415px) {
     line-height: 1.5;
     
@@ -92,22 +93,35 @@ const CarouselConatiner = styled.div`
 `
 const NotFoundMessage = styled.p`
   text-align: center;
+  margin-top: 2%;
+`
+const LanguageButton = styled.button`
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  cursor: pointer;
+  ${(props) => props.$active &&
+    `
+      background: white;
+      color: black;
+    `}
 `
 export default function CreditPage() {
   const [person, setPerson] = useState({})
   const [biography, setBiography] = useState("")
+  const [biographyLang, setBiographyLang] = useState("chi")
   const [famousMovie, setfamousMovie] = useState([])
   const [otherMovie, setotherMovie] = useState([])
   const { id } = useParams()
 
   useEffect(() => {
     getPeopleDetail(id).then((res) => {
-      console.log(res)
       setPerson(res)
       setBiography(res.biography)
+    }).catch((err) => {
+      return err
     })
     getPeopleMovies(id).then((res) => {
-      console.log(res)
       let arr = res.cast
       .sort((a, b) => {
         return b.popularity - a.popularity
@@ -120,6 +134,8 @@ export default function CreditPage() {
       .slice(4, res.cast.length-1)
       setfamousMovie(arr)
       setotherMovie(arr2)
+    }).catch((err) => {
+      return err
     })
   }, [id])
 
@@ -127,11 +143,13 @@ export default function CreditPage() {
     if (language === 'eng') {
       getPeopleDetailEng(id).then((res) => {
         setBiography(res.biography)
+        setBiographyLang('eng')
       })
     }
     if (language === 'chi') {
       getPeopleDetail(id).then((res) => {
         setBiography(res.biography)
+        setBiographyLang('chi')
       })
     }
 
@@ -145,12 +163,12 @@ export default function CreditPage() {
         </ImgContainer>}
         <PersonContent>
           <h2>{person.name}</h2>
-          <p>生日：{person.birthday}</p>
-          <p>出生地：{person.place_of_birth}</p>
+          {person.birthday ? <p>生日：{person.birthday}</p> : <NotFoundMessage>生日：目前沒有資料</NotFoundMessage>}
+          {person.place_of_birth ? <p>出生地：{person.place_of_birth}</p> : <NotFoundMessage>出生地：目前沒有資料</NotFoundMessage>}
         </PersonContent>
       </PersonContainer>
-      <button onClick={() => {handleBioLanguage('chi')}}>中文版</button>
-      <button onClick={() => {handleBioLanguage('eng')}}>英文版</button><br />
+      <LanguageButton onClick={() => {handleBioLanguage('chi')}} $active={biographyLang === 'chi'}>中文版</LanguageButton>
+      <LanguageButton onClick={() => {handleBioLanguage('eng')}} $active={biographyLang === 'eng'}>英文版</LanguageButton><br />
       <Biography>{biography === "" ? "暫時沒有資料" : biography}</Biography>
       <Title>著名電影：</Title>
       <FamousMovieSection >

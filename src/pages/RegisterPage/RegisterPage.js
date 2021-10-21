@@ -1,8 +1,7 @@
 import React, { useState, useContext } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database"
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import AuthContext from '../../context'
 import { getUserDeviceType } from '../../utils'
 
@@ -62,14 +61,6 @@ export default function LoginPage() {
   const { setUser } = useContext(AuthContext)
   const history = useHistory()
 
-  function writeUserData(userId, email, nickname) {
-    const db = getDatabase();
-    set(ref(db, 'user/' + userId), {
-      nickname: nickname,
-      email: email,
-    });
-  }
-
   const handleRegister = () => {
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, username, password)
@@ -79,21 +70,15 @@ export default function LoginPage() {
         updateProfile(auth.currentUser, {
           displayName: nickname
         }).then(() => {
-          console.log('修改暱稱成功')
         }).catch((error) => {
-          console.log('修改暱稱失敗')
-        });
-        console.log(user)
+        })
         setUser(user.auth.currentUser)
         if(user) {
           history.push('/')
         }
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, errorMessage)
-        // ..
+        return error
       });
   }
   return (

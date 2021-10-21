@@ -196,7 +196,6 @@ function Header({ isHide }) {
 
   useEffect(() => {
     userDevice.current = getUserDeviceType()
-    console.log(userDevice.current)
   }, [])
 
   const handleKeyPressSearch = (e) => {
@@ -224,12 +223,11 @@ function Header({ isHide }) {
 
   const handleLogout = () => {
     const auth = getAuth();
-    signOut(auth).then((res) => {
+    signOut(auth).then(() => {
       setUser(null)
-      console.log('成功', res)
       // Sign-out successful.
     }).catch((error) => {
-      console.log('失敗', error)
+      return error
       // An error happened.
     });
   }
