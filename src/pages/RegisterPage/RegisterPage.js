@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import AuthContext from '../../context'
 import { getUserDeviceType } from '../../utils'
 
@@ -19,7 +19,7 @@ const Container = styled.div`
   backdrop-filter: blur(10px);
   position: relative;
   input{
-    font-size: ${props => props.isMobileDevice ? "initial" : ""}
+    font-size: ${props => props.isMobileDevice ? 'initial' : ''}
   }
 `
 const LoginSection = styled.div`
@@ -53,48 +53,68 @@ const LoginSection = styled.div`
     font-size: 16px;
   }
 `
+const ErrorMessage = styled.p`
+  color: red;
+  font-weight: bold;
+  padding: 5% 0;
+`
 
-export default function LoginPage() {
+export default function RegisterPage () {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
   const [nickname, setNickname] = useState('')
   const { setUser } = useContext(AuthContext)
   const history = useHistory()
-
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   const handleRegister = () => {
-    const auth = getAuth();
+    const auth = getAuth()
     createUserWithEmailAndPassword(auth, username, password)
       .then((userCredential) => {
-        // Signed in 
+        // Signed in
         const user = userCredential.user
         updateProfile(auth.currentUser, {
           displayName: nickname
         }).then(() => {
         }).catch((error) => {
+          return error
         })
         setUser(user.auth.currentUser)
-        if(user) {
+        if (user) {
           history.push('/')
         }
       })
       .catch((error) => {
-        return error
-      });
+        const errorCode = error.code
+        if (errorCode === 'auth/invalid-email') {
+          setErrorMessage('信箱格式錯誤')
+        }
+        if (errorCode === 'auth/internal-error') {
+          setErrorMessage('密碼格式錯誤')
+        }
+      })
+  }
+  const handleKeyPressRegister = (e) => {
+    if (e.key === 'Enter') {
+      handleRegister()
+    }
   }
   return (
-    <Container isMobileDevice={getUserDeviceType()}>
+    <Container isMobileDevice={ getUserDeviceType() }>
       <LoginSection>
-      <h2>註冊</h2>
-      <label>帳號：</label>
-      <input type="email" onChange={(e) => {setUsername(e.target.value)}} placeholder="電郵"/><br />
-      <label>密碼：</label>
-      <input type="password" onChange={(e) => {setPassword(e.target.value)}} placeholder="密碼"/><br />
-      <label>暱稱：</label>
-      <input type="text" onChange={(e) => {setNickname(e.target.value)}} placeholder="請輸入暱稱"/><br />
-      <button onClick={handleRegister}>註冊</button>
+        <h2>註冊</h2>
+        <label>帳號：</label>
+        <input onChange={ (e) => { setUsername(e.target.value) } } onKeyPress={ (e) => { handleKeyPressRegister(e) } } placeholder="電郵" type="email" /><br />
+        <label>密碼：</label>
+        <input onChange={ (e) => { setPassword(e.target.value) } } onKeyPress={ (e) => { handleKeyPressRegister(e) } } placeholder="密碼" type="password" /><br />
+        <label>暱稱：</label>
+        <input onChange={ (e) => { setNickname(e.target.value) } } onKeyPress={ (e) => { handleKeyPressRegister(e) } } placeholder="請輸入暱稱" type="text" /><br />
+        <ErrorMessage>{errorMessage}</ErrorMessage>
+        <button onClick={ handleRegister }>註冊</button>
       </LoginSection>
     </Container>
-
 
   )
 }

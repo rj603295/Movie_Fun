@@ -48,13 +48,12 @@ const Score = styled.span`
   font-size: 18px;
 `
 
-export default function Rating({Ratings, logoWidth="75px"}) { 
-  
+export default function Rating ({ Ratings, logoWidth = '75px' }) {
   let IMDB = ''
   let tomatoes = ''
   let Metacritic = ''
   if (Ratings) {
-    for(let i = 0; i < Ratings.length; i++) {
+    for (let i = 0; i < Ratings.length; i++) {
       if (Ratings[i].Source === 'Internet Movie Database') {
         IMDB = Ratings[i].Value
       }
@@ -67,10 +66,10 @@ export default function Rating({Ratings, logoWidth="75px"}) {
     }
   }
   return (
-    <RatingList logoWidth={logoWidth}>
-      <li><div className="logo"><img className="logo I_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg"/></div><Score>{IMDB !== '' ? IMDB : 'None'}</Score></li>
-      <li><div className="logo"><img className="logo T_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg"/></div><Score>{tomatoes  !== '' ? tomatoes : 'None'}</Score></li>
-      <li><div className="logo"><img className="logo M_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg"/></div><Score>{Metacritic  !== '' ? Metacritic : 'None'}</Score></li>
+    <RatingList logoWidth={ logoWidth }>
+      <li><div className="logo"><img alt="" className="logo I_logo" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" /></div><Score>{IMDB !== '' ? IMDB : 'None'}</Score></li>
+      <li><div className="logo"><img alt="" className="logo T_logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg" /></div><Score>{tomatoes !== '' ? tomatoes : 'None'}</Score></li>
+      <li><div className="logo"><img alt="" className="logo M_logo" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg" /></div><Score>{Metacritic !== '' ? Metacritic : 'None'}</Score></li>
     </RatingList>
   )
 }

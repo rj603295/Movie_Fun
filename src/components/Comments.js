@@ -4,7 +4,7 @@ import { useHistory, Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 import AuthContext from '../context'
-import { getDatabase, ref, runTransaction, update, set } from "firebase/database"
+import { getDatabase, ref, runTransaction, update, set } from 'firebase/database'
 import { getMovieDeatil } from '../WebAPI'
 import { getUserDeviceType } from '../utils'
 
@@ -21,7 +21,7 @@ const CommentContainer = styled.div`
     margin-top: 20px;
   }
   input, textarea{
-    font-size: ${props => props.isMobileDevice ? "initial" : ""}
+    font-size: ${props => props.isMobileDevice ? 'initial' : ''}
   }
   @media (max-width: 415px) {
     min-width: 85%;
@@ -144,7 +144,7 @@ const Content = styled.p`
     font-size: 14px;
   }
 `
-export default function Comments({ comment, handleCommentOpen, isPosterOpen=false, isThumbsUpOpen=true }) {
+export default function Comments ({ comment, handleCommentOpen, isPosterOpen = false, isThumbsUpOpen = true }) {
   const { user } = useContext(AuthContext)
   const history = useHistory()
   const [movie, setMovie] = useState(null)
@@ -152,8 +152,8 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
   const [titleValue, setTitleValue] = useState('')
   const [contentValue, setContentValue] = useState('')
   let thumbsUpUsers = []
-  
-  if(comment.thumbs_up_user){
+
+  if (comment.thumbs_up_user) {
     thumbsUpUsers = Object.keys(comment.thumbs_up_user)
   }
   useEffect(() => {
@@ -162,31 +162,30 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
     })
   }, [comment.movie_id])
 
-
   const handleThumbsUp = () => {
-    const db = getDatabase();
-    if(!user) {
+    const db = getDatabase()
+    if (!user) {
       history.push('/login')
     }
-    if(user && thumbsUpUsers.includes(user.uid)) {
+    if (user && thumbsUpUsers.includes(user.uid)) {
       runTransaction(ref(db, 'comments/' + comment.id), (comment) => {
         if (comment) {
           comment.thumbs_up--
           comment.thumbs_up_user[user.uid] = null
         }
-        return comment;
-      });
+        return comment
+      })
     } else if (user && !thumbsUpUsers.includes(user.uid)) {
       runTransaction(ref(db, 'comments/' + comment.id), (comment) => {
         if (comment) {
           comment.thumbs_up++
-          if(thumbsUpUsers.length === 0){
-            comment.thumbs_up_user = {};
+          if (thumbsUpUsers.length === 0) {
+            comment.thumbs_up_user = {}
           }
-          comment.thumbs_up_user[user.uid] = 1;
+          comment.thumbs_up_user[user.uid] = 1
         }
-        return comment;
-      });
+        return comment
+      })
     }
   }
   const handleTitleValue = (e) => {
@@ -195,17 +194,17 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
   const handleContentValue = (e) => {
     setContentValue(e.target.value)
   }
-  const handleEditComment = (e) => {
+  const handleEditComment = () => {
     setIsEdit(true)
     setTitleValue(comment.title)
     setContentValue(comment.content)
   }
-  const handleEditCommentCancel = (e) => {
+  const handleEditCommentCancel = () => {
     setIsEdit(false)
-    setTitleValue("")
-    setContentValue("")
+    setTitleValue('')
+    setContentValue('')
   }
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = () => {
     const db = getDatabase()
     update(ref(db, 'comments/' + comment.id), {
       title: titleValue,
@@ -215,45 +214,43 @@ export default function Comments({ comment, handleCommentOpen, isPosterOpen=fals
   }
   const handleDeleteComment = () => {
     const db = getDatabase()
-    if(window.confirm('確定要刪除留言？')) {
-      set(ref(db, 'comments/' + comment.id), {});
+    if (window.confirm('確定要刪除留言？')) {
+      set(ref(db, 'comments/' + comment.id), {})
     }
-
   }
 
   return (
-    <CommentContainer isMobileDevice={getUserDeviceType()}>
+    <CommentContainer isMobileDevice={ getUserDeviceType() }>
       <TitleWrapper>
-        <TitleSection column={isPosterOpen  ? "10% 80% 10%" : "90% 10%"} RWDS_column={isPosterOpen  ? "20% 65% 15%" : "80% 20%"} >
-          {/* <ColumnWrapper> */}
-            {isPosterOpen && movie &&
-            <ImgContainer to={`movie/${comment.movie_id}`} style={{backgroundImage: `url('https://image.tmdb.org/t/p/w500${movie.poster_path}')`}}></ImgContainer>}
-            <TitleAndDate TitleMargin={isPosterOpen ? "10%" : "0"}>
-            {!isEdit && <h2 onClick={() => handleCommentOpen(comment.id)}>{comment.title}</h2>}
-            {isEdit && <input type="text" value={titleValue} onChange={(e) => {handleTitleValue(e)}}/>}
-              <span><span>{comment.display_name}</span> －發布於<Date>{comment.date}</Date></span>
-              {user && 
-              (user.uid === comment.uid ? 
-              <EditButton>
-                <button onClick={handleEditComment}>編輯</button>
-                <button onClick={handleDeleteComment}>刪除</button>
-                </EditButton> : false)
+        <TitleSection RWDS_column={ isPosterOpen ? '20% 65% 15%' : '80% 20%' } column={ isPosterOpen ? '10% 80% 10%' : '90% 10%' } >
+          {isPosterOpen && movie &&
+            <ImgContainer style={ { backgroundImage: `url('https://image.tmdb.org/t/p/w500${movie.poster_path}')` } } to={ `movie/${comment.movie_id}` }></ImgContainer>}
+          <TitleAndDate TitleMargin={ isPosterOpen ? '10%' : '0' }>
+            {!isEdit && <h2 onClick={ () => handleCommentOpen(comment.id) }>{comment.title}</h2>}
+            {isEdit && <input onChange={ (e) => { handleTitleValue(e) } } type="text" value={ titleValue } />}
+            <span><span>{comment.display_name}</span> －發布於<Date>{comment.date}</Date></span>
+            {user &&
+              (user.uid === comment.uid
+                ? <EditButton>
+                  <button onClick={ handleEditComment }>編輯</button>
+                  <button onClick={ handleDeleteComment }>刪除</button>
+                </EditButton>
+                : false)
               }
-            </TitleAndDate>
-          {/* </ColumnWrapper> */}
-
+          </TitleAndDate>
           <ThumbWrapper>
-            {isThumbsUpOpen && (user && thumbsUpUsers.includes(user.uid) ?
-            <Thumb onClick={handleThumbsUp} className="thumbs_up"><FontAwesomeIcon icon={faThumbsUp} /> {comment.thumbs_up}</Thumb> : <Thumb onClick={handleThumbsUp}><FontAwesomeIcon icon={faThumbsUp} /> {comment.thumbs_up}</Thumb>)}
+            {isThumbsUpOpen && (user && thumbsUpUsers.includes(user.uid)
+              ? <Thumb className="thumbs_up" onClick={ handleThumbsUp }><FontAwesomeIcon icon={ faThumbsUp } /> {comment.thumbs_up}</Thumb>
+              : <Thumb onClick={ handleThumbsUp }><FontAwesomeIcon icon={ faThumbsUp } /> {comment.thumbs_up}</Thumb>)}
           </ThumbWrapper>
         </TitleSection>
       </TitleWrapper>
       {!comment.isHide && !isEdit && <Content>{comment.content}</Content>}
-      {isEdit && <textarea type="text" value={contentValue} onChange={(e) => {handleContentValue(e)}}/>}
-      {isEdit && 
+      {isEdit && <textarea onChange={ (e) => { handleContentValue(e) } } type="text" value={ contentValue } />}
+      {isEdit &&
       <ButtonSection>
-          <button onClick={handleCommentSubmit}>確定</button>
-          <button onClick={handleEditCommentCancel}>取消</button>
+        <button onClick={ handleCommentSubmit }>確定</button>
+        <button onClick={ handleEditCommentCancel }>取消</button>
         </ButtonSection>
         }
     </CommentContainer>

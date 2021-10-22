@@ -20,14 +20,13 @@ import {
   query,
   orderByChild,
   equalTo
-} from "firebase/database";
+} from 'firebase/database'
 import AuthContext from '../../context'
-import { getDate, getCreatedAt } from '../../utils'
+import { getDate, getCreatedAt, getUserDeviceType } from '../../utils'
 import Comment from '../../components/Comments'
 import Person from '../../components/Person'
 import Movie from '../../components/Movie'
 import { SRLWrapper } from 'simple-react-lightbox'
-import { getUserDeviceType } from '../../utils'
 
 const LeftContainer = styled.div`
   margin: 0 auto;
@@ -245,7 +244,7 @@ const AddCommentSection = styled.div`
     margin-top: 3%;
   }
   input, textarea{
-    font-size: ${props => props.isMobileDevice ? "initial" : "0.5rem"}
+    font-size: ${props => props.isMobileDevice ? 'initial' : '0.5rem'}
   }
 `
 const AddCommentColumn = styled.div`
@@ -258,42 +257,41 @@ const Comments = styled.div`
 const NoComment = styled.p`
   margin-bottom: 2%;
 `
-function Credits({ credits }) {
+function Credits ({ credits }) {
   return (
     <CarouselConatiner>
       <div className="RWD-L">
-      <Carousel cols={6} gap={10}>
-        {credits.map((item, index) =>
-          <Carousel.Item key={item.id}>
-            <div>
-            {item.profile_path !== "null" && 
-              <Person person={item}/>
+        <Carousel cols={ 6 } gap={ 10 }>
+          {credits.map((item) =>
+            <Carousel.Item key={ item.id }>
+              <div>
+                {item.profile_path !== 'null' &&
+                <Person person={ item } />
             }
-            </div>
-          </Carousel.Item>        
-        )}
+              </div>
+            </Carousel.Item>
+          )}
         </Carousel>
       </div>
       <div className="RWD-S">
-      <Carousel cols={3} gap={0}>
-        {credits.map((item, index) =>
-          <Carousel.Item key={item.id}>      
-            <div>
-            {item.profile_path !== "null" && 
-            <Person person={item}/>
+        <Carousel cols={ 3 } gap={ 0 }>
+          {credits.map((item) =>
+            <Carousel.Item key={ item.id }>
+              <div>
+                {item.profile_path !== 'null' &&
+                <Person person={ item } />
             }
 
-            </div>
-          </Carousel.Item>        
-        )}
+              </div>
+            </Carousel.Item>
+          )}
         </Carousel>
       </div>
 
-      </CarouselConatiner>
+    </CarouselConatiner>
   )
 }
-export default function MovieDetailPage() {
-
+export default function MovieDetailPage () {
   const [movie, setMovie] = useState([])
   const [rating, setRating] = useState([])
   const [recommendations, setRecommendations] = useState([])
@@ -309,72 +307,74 @@ export default function MovieDetailPage() {
   const [totalCommentPage, settotalCommentPage] = useState(1)
   const { id } = useParams()
   const { user } = useContext(AuthContext)
- 
+  const options = {
+    buttons: {
+      showNextButton: false,
+      showPrevButton: false
+    },
+    thumbnails: {
+      showThumbnails: false
+    }
+  }
   useEffect(() => {
-    function getComments() {
-      
-      const db = getDatabase();
-      const posts = query(ref(db, 'comments'), orderByChild("movie_id"), equalTo(id))  
-        onValue(posts, (snapshot) => {
-          const data = snapshot.val()
-          let arr = []
-          if(data){
-            let keys = Object.keys(data)
-            let totalPage = Math.ceil(keys.length / 5)
-            settotalCommentPage(totalPage)
-            let len
-            if(keys.length >= 5) {
-              len = 5
-            } else {
-              len = keys.length
-            }
-            for(let i = 0; i < len; i++) {
-              arr.push(
-                {
-                  ...data[keys[i]], 
-                  isHide: true,
-                  id: keys[i]
-                }
-              )
-            }
-            setComments(arr.reverse())
+    function getComments () {
+      const db = getDatabase()
+      const posts = query(ref(db, 'comments'), orderByChild('movie_id'), equalTo(id))
+      onValue(posts, (snapshot) => {
+        const data = snapshot.val()
+        const arr = []
+        if (data) {
+          const keys = Object.keys(data)
+          const totalPage = Math.ceil(keys.length / 5)
+          settotalCommentPage(totalPage)
+          let len
+          if (keys.length >= 5) {
+            len = 5
           } else {
-            setComments([])
+            len = keys.length
           }
-          
-        });
-      
-      
+          for (let i = 0; i < len; i++) {
+            arr.push(
+              {
+                ...data[keys[i]],
+                isHide: true,
+                id: keys[i]
+              }
+            )
+          }
+          setComments(arr.reverse())
+        } else {
+          setComments([])
+        }
+      })
     }
     getComments()
   }, [id])
-  
-
 
   let src = ''
-    const format = 'rgbArray'
-    const crossOrigin = 'anonymous'
-    const quality = 10
+  const format = 'rgbArray'
+  const crossOrigin = 'anonymous'
+  const quality = 10
   if (movie.poster_path) {
     src = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
   }
-  const { data } = useColor(src, format, { crossOrigin, quality})
+  const { data } = useColor(src, format, { crossOrigin, quality })
   let backgroundMask = ''
   let lightness = 0
   let colorStr = ''
-  if(data) {
+  if (data) {
     let str = 'rgba('
-    for(let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       str += data[i] + ','
     }
     str += '0.8)'
     backgroundMask = str
   }
 
-  if(data) {  
-    let red = data[0]
-    let green = data[1]
-    let blue = data[2]
+  if (data) {
+    const red = data[0]
+    const green = data[1]
+    const blue = data[2]
     lightness = (red * 0.2126 + green * 0.7152 + blue * 0.0722) / 255
     colorStr = `hsl(0, 0%, calc((${lightness} - 0.5) * -999999%))`
   }
@@ -385,7 +385,7 @@ export default function MovieDetailPage() {
       return res
     }).then((res) => {
       getVideo(res.id).then((res) => {
-        let videoArr = res.results.filter(item => {
+        const videoArr = res.results.filter(item => {
           return item.type === 'Trailer'
         })
         setVideo(videoArr[0])
@@ -398,8 +398,7 @@ export default function MovieDetailPage() {
       })
     })
     getCredits(id).then((res) => {
-
-      let director = res.crew.filter((item) => {
+      const director = res.crew.filter((item) => {
         return item.job === 'Director'
       })
       setCredits(res.cast)
@@ -407,16 +406,16 @@ export default function MovieDetailPage() {
     })
     getMovieImage(id).then((res) => {
       // let imgArr = res.backdrops.slice(3, 7)
-      let imgArr = res.backdrops
+      const imgArr = res.backdrops
       setImages(imgArr)
     })
   }, [id])
 
   const handleCommentSubmit = () => {
-    function writeUserData(content, title) {
-      const db = getDatabase();
-      let date = getDate()
-      let created_at = getCreatedAt()
+    function writeUserData () {
+      const db = getDatabase()
+      const date = getDate()
+      const createdAt = getCreatedAt()
       push(ref(db, 'comments'), {
         content: commentContent,
         title: commentTitle,
@@ -425,17 +424,16 @@ export default function MovieDetailPage() {
         thumbs_up: 0,
         movie_id: id,
         uid: user.uid,
-        created_at: created_at
-      });
+        createdAt: createdAt
+      })
     }
-    if(commentTitle !== '' && commentContent !== '') {
+    if (commentTitle !== '' && commentContent !== '') {
       setcommentTitle('')
       setcommentContent('')
       writeUserData()
     } else {
       alert('請輸入評論標題及內容')
     }
-
   }
   const handleCommentOpen = (id) => {
     setComments(comments.map((item) => {
@@ -448,181 +446,178 @@ export default function MovieDetailPage() {
   }
   const handleCommentPage = (isNextPage) => {
     const db = getDatabase()
-    const posts = query(ref(db, 'comments'), orderByChild("movie_id"), equalTo(id)) 
-    if(isNextPage) {
+    const posts = query(ref(db, 'comments'), orderByChild('movie_id'), equalTo(id))
+    if (isNextPage) {
       onValue(posts, (snapshot) => {
         const data = snapshot.val()
-        let arr = []
-        if(data){
-          let keys = Object.keys(data)
+        const arr = []
+        if (data) {
+          const keys = Object.keys(data)
           let len
-          if(keys.length >= currentCommentPage * 5 + 4) {
+          if (keys.length >= currentCommentPage * 5 + 4) {
             len = currentCommentPage * 5 + 4
           } else {
             len = keys.length
           }
-          for(let i = currentCommentPage * 5; i < len; i++) {
-              arr.push(
-                {
-                  ...data[keys[i]], 
-                  isHide: true,
-                  id: keys[i]
-                }
-              )
+          for (let i = currentCommentPage * 5; i < len; i++) {
+            arr.push(
+              {
+                ...data[keys[i]],
+                isHide: true,
+                id: keys[i]
+              }
+            )
           }
           setComments(arr.reverse())
           setCurrentCommentPage(currentCommentPage + 1)
         }
-      });
+      })
     } else if (!isNextPage) {
       onValue(posts, (snapshot) => {
         const data = snapshot.val()
-        let arr = []
-        if(data){
-          let keys = Object.keys(data)
+        const arr = []
+        if (data) {
+          const keys = Object.keys(data)
           let len
-          if(keys.length >= (currentCommentPage-2) * 5 + 4) {
-            len = (currentCommentPage-2) * 5 + 4
+          if (keys.length >= (currentCommentPage - 2) * 5 + 4) {
+            len = (currentCommentPage - 2) * 5 + 4
           } else {
             len = keys.length
           }
-          for(let i = (currentCommentPage-2) * 5; i < len; i++) {
-              arr.push(
-                {
-                  ...data[keys[i]], 
-                  isHide: true,
-                  id: keys[i]
-                }
-              )
+          for (let i = (currentCommentPage - 2) * 5; i < len; i++) {
+            arr.push(
+              {
+                ...data[keys[i]],
+                isHide: true,
+                id: keys[i]
+              }
+            )
           }
           setComments(arr.reverse())
           setCurrentCommentPage(currentCommentPage - 1)
         }
-      });
+      })
     }
-
   }
 
   return (
-    <div style={{ 
-      backgroundColor: `#1C1C1C` ,color: 'white'
-    }}>
-      {movie.poster_path && 
-      <Container style={{ 
-            backgroundImage: `linear-gradient(to top, #1C1C1C, ${backgroundMask}), url("https://image.tmdb.org/t/p/original${movie.backdrop_path}")` //https://image.tmdb.org/t/p/original/wwemzKWzjKYJFfCeiB57q3r4Bcm.svg
-          }}>
-      <Wrapper>
-        <DetailContainer>
-        <LeftContainer>
-          <Movie
-          key={movie.id}
-          movie={movie}
-          imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-          id={movie.id}/>
-        </LeftContainer>
-        <RightContainer style={{ 
-            color: `${colorStr}`
-          }}>
-          <h2>{movie.title}<Date>({movie.release_date.substr(0, 4)})</Date></h2>
-          <p>{movie.overview}</p>
-          {rating && <div className="rating-list"><RatingList Ratings={rating}></RatingList></div>}
-          <MovieDetailContent>
-            {director && <li>導演：{director.name}</li>}
-            <li>片長：{movie.runtime}</li>
-            <li>官方網站：{movie.homepage}</li>
-            <li>關鍵字：{movie.keywords.keywords.map((item) => {
-              return <Keyword style={{ border: `1px solid ${colorStr}`}}>{'#'+item.name}</Keyword>
-            })}</li>
-          </MovieDetailContent>
-        </RightContainer>
-        </DetailContainer>
-        <h2>相關圖片：</h2>
-      <MovieImgSection>
-      <CarouselConatiner>
-            <div className="RWD-L">
-            <Carousel cols={4} gap={10}>
-              {images && images.map((item) => {
-              return <Carousel.Item>
-                <SRLWrapper>
-                  <MovieImg src={`https://image.tmdb.org/t/p/original${item.file_path}`}></MovieImg>
-                  </SRLWrapper>
-                  </Carousel.Item>
-            })}
-              </Carousel>
-            </div>
-            <div className="RWD-S">
-            <Carousel cols={2} gap={10}>
-              {images && images.map((item) => {
-              return <Carousel.Item>
-                <SRLWrapper>
-                  <MovieImg src={`https://image.tmdb.org/t/p/original${item.file_path}`}></MovieImg>
-                  </SRLWrapper>
-                  </Carousel.Item>
-            })}
-              </Carousel>
-            </div>
+    <div style={ {
+      backgroundColor: '#1C1C1C', color: 'white'
+    } }
+    >
+      {movie.poster_path &&
+      <Container style={ {
+        backgroundImage: `linear-gradient(to top, #1C1C1C, ${backgroundMask}), url("https://image.tmdb.org/t/p/original${movie.backdrop_path}")`
+      } }
+      >
+        <Wrapper>
+          <DetailContainer>
+            <LeftContainer>
+              <Movie
+                id={ movie.id }
+                imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
+                key={ movie.id }
+                movie={ movie }
+              />
+            </LeftContainer>
+            <RightContainer style={ {
+              color: `${colorStr}`
+            } }
+            >
+              <h2>{movie.title}<Date>({movie.release_date.substr(0, 4)})</Date></h2>
+              <p>{movie.overview}</p>
+              {rating && <div className="rating-list"><RatingList Ratings={ rating }></RatingList></div>}
+              <MovieDetailContent>
+                {director && <li>導演：{director.name}</li>}
+                <li>片長：{movie.runtime}</li>
+                <li>官方網站：{movie.homepage}</li>
+                <li>關鍵字：{movie.keywords.keywords.map((item, index) => {
+                  return <Keyword key={ index } style={ { border: `1px solid ${colorStr}` } }>{'#' + item.name}</Keyword>
+                })}</li>
+              </MovieDetailContent>
+            </RightContainer>
+          </DetailContainer>
+          <h2>相關圖片：</h2>
+          <MovieImgSection>
+            <CarouselConatiner>
+              <div className="RWD-L">
+                <Carousel cols={ 4 } gap={ 10 }>
+                  {images && images.map((item, index) => {
+                    return <Carousel.Item key={ index }>
+                      <SRLWrapper options={ options }>
+                        <MovieImg src={ `https://image.tmdb.org/t/p/original${item.file_path}` }></MovieImg>
+                      </SRLWrapper>
+                    </Carousel.Item>
+                  })}
+                </Carousel>
+              </div>
+              <div className="RWD-S">
+                <Carousel cols={ 2 } gap={ 10 }>
+                  {images && images.map((item, index) => {
+                    return <Carousel.Item key={ index }>
+                      <SRLWrapper options={ options }>
+                        <MovieImg src={ `https://image.tmdb.org/t/p/original${item.file_path}` }></MovieImg>
+                      </SRLWrapper>
+                    </Carousel.Item>
+                  })}
+                </Carousel>
+              </div>
             </CarouselConatiner>
-            {/* {images && images.map((item) => {
-              return <MovieImg style={{ 
-                backgroundImage: `url("https://image.tmdb.org/t/p/original${item.file_path}")`
-              }}></MovieImg>
-            })} */}
           </MovieImgSection>
           <h2>預告：</h2>
-        <MovieVideoSection>
-            {video && <iframe className="responsive-iframe" src={`https://www.youtube.com/embed/${video.key}?autoplay=0`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>}
-        </MovieVideoSection>
-      </Wrapper>
-
+          <MovieVideoSection>
+            {video && <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="responsive-iframe" frameBorder="0" src={ `https://www.youtube.com/embed/${video.key}?autoplay=0` } title="YouTube video player"></iframe>}
+          </MovieVideoSection>
+        </Wrapper>
       </Container>}
       <h2>Credits</h2>
-      <Credits credits={credits}></Credits>
+      <Credits credits={ credits }></Credits>
       <h2>Comments</h2>
       <CommentSection>
         <Comments>
-        {comments.length !== 0 ? comments.map((item, index) => {
-            return <Comment handleCommentOpen={handleCommentOpen} comment={item} />
-          }) : <NoComment>還沒有任何評論</NoComment>}
-          {user ?<button onClick={() => {setisCommentInputOpen(!isCommentInputOpen)}}>新增評論</button> : <Link to="/login">點我登入評論</Link>}
+          {comments.length !== 0
+            ? comments.map((item) => {
+              return <Comment comment={ item } handleCommentOpen={ handleCommentOpen } key={ item.id } />
+            })
+            : <NoComment>還沒有任何評論</NoComment>}
+          {user ? <button onClick={ () => { setisCommentInputOpen(!isCommentInputOpen) } }>新增評論</button> : <Link to="/login">點我登入評論</Link>}
         </Comments>
-
-          
-          {isCommentInputOpen && 
-            <AddCommentSection isMobileDevice={getUserDeviceType()}>
-              <AddCommentColumn>
-                <span>標題：</span><input type="text" onChange={(e) => setcommentTitle(e.target.value)}/>
-              </AddCommentColumn>
-              <AddCommentColumn>
-                <span>內容：</span><textarea type="text" onChange={(e) => setcommentContent(e.target.value)} />
-              </AddCommentColumn>
-              <input type="submit" onClick={handleCommentSubmit}></input>
-            </AddCommentSection>
+        {isCommentInputOpen &&
+        <AddCommentSection isMobileDevice={ getUserDeviceType() }>
+          <AddCommentColumn>
+            <span>標題：</span><input onChange={ (e) => setcommentTitle(e.target.value) } type="text" />
+          </AddCommentColumn>
+          <AddCommentColumn>
+            <span>內容：</span><textarea onChange={ (e) => setcommentContent(e.target.value) } type="text" />
+          </AddCommentColumn>
+          <input onClick={ handleCommentSubmit } type="submit"></input>
+        </AddCommentSection>
           }
-          <Pagination>
-              {currentCommentPage !== 1 ? <button onClick={() => {handleCommentPage(false)}}>&lt;</button> : false}
-              {currentCommentPage}
-              {totalCommentPage !== currentCommentPage ? <button onClick={() => {handleCommentPage(true)}}>&gt;</button>: false}
-          </Pagination>
+        <Pagination>
+          {currentCommentPage !== 1 ? <button onClick={ () => { handleCommentPage(false) } }>&lt;</button> : false}
+          {currentCommentPage}
+          {totalCommentPage !== currentCommentPage ? <button onClick={ () => { handleCommentPage(true) } }>&gt;</button> : false}
+        </Pagination>
       </CommentSection>
       <h2>推薦專區</h2>
       <Recommendations>
         <CarouselConatiner>
-          <Carousel cols={3} gap={10}>
-            {recommendations.map((item, index) =>
-              <Carousel.Item key={item.id}>
+          <Carousel cols={ 3 } gap={ 10 }>
+            {recommendations.map((item) =>
+              <Carousel.Item key={ item.id }>
                 <div>
-                {item.poster_path && <RecommendImgContainer style={{ 
-                  backgroundImage: `url("https://image.tmdb.org/t/p/w500${item.poster_path}")` 
-                }} to={`/movie/${item.id}`}>
-                </RecommendImgContainer>}
+                  {item.poster_path && <RecommendImgContainer
+                    style={ {
+                      backgroundImage: `url("https://image.tmdb.org/t/p/w500${item.poster_path}")`
+                    } } to={ `/movie/${item.id}` }
+                                       >
+                  </RecommendImgContainer>}
                 </div>
-              </Carousel.Item>        
+              </Carousel.Item>
             )}
-            </Carousel>
-          </CarouselConatiner>
+          </Carousel>
+        </CarouselConatiner>
       </Recommendations>
     </div>
-
-
   )
 }

@@ -1,8 +1,8 @@
-import React, { useContext, useRef } from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faCheck  } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faCheck } from '@fortawesome/free-solid-svg-icons'
 import AuthContext from '../context'
 import {
   getDatabase,
@@ -10,7 +10,7 @@ import {
   onValue,
   set,
   runTransaction
-} from "firebase/database"
+} from 'firebase/database'
 import RatingLoading from './RatingLoading'
 
 const MovieContainer = styled.div`
@@ -100,23 +100,23 @@ const Score = styled.span`
 function Movie ({
   movie,
   rating,
-  isRating=false,
-  isRatingLoading=false }) { 
-
+  isRating = false,
+  isRatingLoading = false
+}) {
   const imgUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-  let id = movie.id
+  const id = movie.id
   const { user } = useContext(AuthContext)
   const { userFavorite } = useContext(AuthContext)
   const db = getDatabase()
   let keysArr = []
-  if((userFavorite !== null) && (Object.keys(userFavorite).length !== 0)){
+  if ((userFavorite !== null) && (Object.keys(userFavorite).length !== 0)) {
     keysArr = Object.keys(userFavorite)
   }
   let IMDB = ''
   let tomatoes = ''
   let Metacritic = ''
   if (rating) {
-    for(let i = 0; i < rating.length; i++) {
+    for (let i = 0; i < rating.length; i++) {
       if (rating[i].Source === 'Internet Movie Database') {
         IMDB = rating[i].Value
       }
@@ -131,52 +131,53 @@ function Movie ({
 
   const handleFavoriteMovie = (e) => {
     e.preventDefault()
-    //let favoriteMovieIdArr = Object.keys(userFavorite)
-    if(user && keysArr.includes(id.toString())) {
+    // let favoriteMovieIdArr = Object.keys(userFavorite)
+    if (user && keysArr.includes(id.toString())) {
       runTransaction(ref(db, 'favorite/' + user.uid), (movie) => {
         console.log('hello1')
         if (movie) {
           movie[`${id}`] = null
         }
         return movie
-      });
+      })
     } else if (user && !keysArr.includes(id.toString())) {
       let checkData
       onValue(ref(db, 'favorite/' + user.uid), (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val()
         checkData = data
-      });
-      if(!checkData) {
-        let obj = {}
-        obj[`${id}`] = 1;
-        set(ref(db, 'favorite/' + user.uid), obj);
+      })
+      if (!checkData) {
+        const obj = {}
+        obj[`${id}`] = 1
+        set(ref(db, 'favorite/' + user.uid), obj)
       } else {
         runTransaction(ref(db, 'favorite/' + user.uid), (movie) => {
           if (movie) {
-            if(keysArr.length === 0){
-              movie[`${id}`] = {};
+            if (keysArr.length === 0) {
+              movie[`${id}`] = {}
             }
-            movie[`${id}`] = 1;
+            movie[`${id}`] = 1
           }
-          return movie;
-        });
+          return movie
+        })
       }
     }
   }
   return (
     <MovieContainer>
       <ImgContainer
-      style={{backgroundImage: movie.poster_path ? `url("${imgUrl}")`: `url("https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg")`}} to={`/movie/${id}`}>
-      {user && 
-      <Heart onClick={handleFavoriteMovie}>
-        {keysArr.includes(id.toString()) ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faPlus} />}
-      </Heart>}
+        style={ { backgroundImage: movie.poster_path ? `url("${imgUrl}")` : 'url("https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg")' } } to={ `/movie/${id}` }
+      >
+        {user &&
+        <Heart onClick={ handleFavoriteMovie }>
+          {keysArr.includes(id.toString()) ? <FontAwesomeIcon icon={ faCheck } /> : <FontAwesomeIcon icon={ faPlus } />}
+        </Heart>}
         {isRating &&
         <RatingListRow>
-          <RatingLoading isLoading={isRatingLoading} />
-          <li><img className="logo I_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg"/><Score>{IMDB !== '' ? IMDB : 'None'}</Score></li>
-          <li><img className="logo T_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg"/><Score>{tomatoes  !== '' ? tomatoes : 'None'}</Score></li>
-          <li><img className="logo M_logo" alt="" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg"/><Score>{Metacritic  !== '' ? Metacritic : 'None'}</Score></li>
+          <RatingLoading isLoading={ isRatingLoading } />
+          <li><img alt="" className="logo I_logo" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" /><Score>{IMDB !== '' ? IMDB : 'None'}</Score></li>
+          <li><img alt="" className="logo T_logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg" /><Score>{tomatoes !== '' ? tomatoes : 'None'}</Score></li>
+          <li><img alt="" className="logo M_logo" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg" /><Score>{Metacritic !== '' ? Metacritic : 'None'}</Score></li>
         </RatingListRow>}
       </ImgContainer>
     </MovieContainer>
@@ -184,9 +185,8 @@ function Movie ({
 }
 
 export default React.memo(Movie, (prevProps, nextProps) => {
-
   if (prevProps.isRatingLoading !== nextProps.isRatingLoading) {
-    return false //re-render
+    return false // re-render
   }
-  return true //不會 Re-render
-});
+  return true // 不會 Re-render
+})

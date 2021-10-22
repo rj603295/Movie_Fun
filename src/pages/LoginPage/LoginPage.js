@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import styled from 'styled-components'
 import { Link, useHistory } from 'react-router-dom'
 import {
@@ -6,7 +6,7 @@ import {
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence
-} from "firebase/auth"
+} from 'firebase/auth'
 import AuthContext from '../../context'
 import { getUserDeviceType } from '../../utils'
 
@@ -24,7 +24,7 @@ const Container = styled.div`
   backdrop-filter: blur(10px);
   position: relative;
   input{
-    font-size: ${props => props.isMobileDevice ? "initial" : ""}
+    font-size: ${props => props.isMobileDevice ? 'initial' : ''}
   }
 `
 const LoginSection = styled.div`
@@ -65,51 +65,59 @@ const ErrorMessage = styled.p`
   color: red;
   font-weight: bold;
 `
-export default function LoginPage() {
+export default function LoginPage () {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const { setUser } = useContext(AuthContext)
   const history = useHistory()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   const handleLogin = () => {
     const auth = getAuth()
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    return signInWithEmailAndPassword(auth, username, password)
-    .then((userCredential) => {
-        const user = userCredential.user;
-        setUser(user.auth.currentUser)
-        if(user) {
-          history.push('/')
-        }
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        return signInWithEmailAndPassword(auth, username, password)
+          .then((userCredential) => {
+            const user = userCredential.user
+            setUser(user.auth.currentUser)
+            if (user) {
+              history.push('/')
+            }
+          })
+          .catch((error) => {
+            const errorCode = error.code
+
+            if (errorCode === 'auth/wrong-password') {
+              setErrorMessage('密碼錯誤')
+            }
+            if (errorCode === 'auth/user-not-found') {
+              setErrorMessage('找不到用戶')
+            }
+          })
       })
       .catch((error) => {
-        const errorCode = error.code
-
-        if(errorCode === 'auth/wrong-password'){
-          setErrorMessage("密碼錯誤")
-        }
-        if(errorCode === 'auth/user-not-found'){
-          setErrorMessage("找不到用戶")
-        }
-      });
-    })
-    .catch((error) => {
-      return error
-    });
+        return error
+      })
+  }
+  const handleKeyPressLogin = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin()
+    }
   }
   return (
-    <Container isMobileDevice={getUserDeviceType()}>
+    <Container isMobileDevice={ getUserDeviceType() }>
       <LoginSection>
         <h2>登入</h2>
         <label>帳號：</label>
-        <input type="email" onChange={(e) => {setUsername(e.target.value)}} placeholder="電郵"/><br />
+        <input onChange={ (e) => { setUsername(e.target.value) } } onKeyPress={ (e) => { handleKeyPressLogin(e) } } placeholder="電郵" type="email" /><br />
         <label>密碼：</label>
-        <input type="password" onChange={(e) => {setPassword(e.target.value)}} placeholder="密碼"/><br />
+        <input onChange={ (e) => { setPassword(e.target.value) } } onKeyPress={ (e) => { handleKeyPressLogin(e) } } placeholder="密碼" type="password" /><br />
         <ErrorMessage>{errorMessage}</ErrorMessage>
-        <button onClick={handleLogin}>登入</button><br />
+        <button onClick={ handleLogin }>登入</button><br />
         <Link to="/register">還沒有帳號嗎？點我註冊</Link>
-      </LoginSection> 
+      </LoginSection>
     </Container>
   )
 }

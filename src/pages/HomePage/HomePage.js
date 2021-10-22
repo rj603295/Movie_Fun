@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { 
-  getPopular, 
-  getMovieRating, 
-  getIMDBID, 
-  getTrend, 
-  getGenre, 
-  getUpcomming, 
+import {
+  getPopular,
+  getMovieRating,
+  getIMDBID,
+  getTrend,
+  getGenre,
+  getUpcomming,
   getPopularPeople
 } from '../../WebAPI'
 import {
@@ -188,38 +188,38 @@ const HotCommentsSection = styled.div`
     width: 85%;
   }
 `
-function Credits({ credits }) {
+function Credits ({ credits }) {
   return (
     <CarouselConatiner>
       <div className="RWD-L">
-      <Carousel cols={6} gap={3}>
-        {credits.map((item, index) =>
-          <Carousel.Item key={item.id}>
-          {item.profile_path !== "null" && 
-            <div>
-              <Person person={item}/>
-            </div>}
-          </Carousel.Item>        
-        )}
-      </Carousel>
+        <Carousel cols={ 6 } gap={ 3 }>
+          {credits.map((item) =>
+            <Carousel.Item key={ item.id }>
+              {item.profile_path !== 'null' &&
+              <div>
+                <Person person={ item } />
+              </div>}
+            </Carousel.Item>
+          )}
+        </Carousel>
       </div>
       <div className="RWD-S">
-      <Carousel cols={3} gap={3}>
-        {credits.map((item, index) =>
-          <Carousel.Item key={item.id}>
-          {item.profile_path !== "null" && 
-            <div>
-              <Person person={item}/>
-            </div>}
-          </Carousel.Item>        
-        )}
-      </Carousel>
+        <Carousel cols={ 3 } gap={ 3 }>
+          {credits.map((item) =>
+            <Carousel.Item key={ item.id }>
+              {item.profile_path !== 'null' &&
+              <div>
+                <Person person={ item } />
+              </div>}
+            </Carousel.Item>
+          )}
+        </Carousel>
       </div>
 
     </CarouselConatiner>
   )
 }
-export default function HomePage() {
+export default function HomePage () {
   const [movies, setMovies] = useState([])
   const [Rating, setRating] = useState([])
   const [trend, setTrend] = useState([])
@@ -230,29 +230,30 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
 
-  //初始化
+  // 初始化
   useEffect(() => {
-    //取得首頁單一電影
-    async function getFirstHotMovie() {
-      let imdb_id = ''
+    window.scrollTo(0, 0)
+    // 取得首頁單一電影
+    async function getFirstHotMovie () {
+      let imdbId = ''
       let trendData
       // setIsLoading(true)
       await getTrend().then((res) => {
-        let data = res.results.sort(function(a,b){
+        const data = res.results.sort(function (a, b) {
           return b.popularity - a.popularity
-        });
+        })
         setTrend(data[0])
         trendData = data[0]
       }).catch((err) => {
         return err
       })
       await getIMDBID(trendData.id).then((res) => {
-        imdb_id = res.imdb_id
+        imdbId = res.imdb_id
       }).catch((err) => {
         return err
       })
-      await getMovieRating(imdb_id).then((res) => {
-        let ratingArr = res.Ratings
+      await getMovieRating(imdbId).then((res) => {
+        const ratingArr = res.Ratings
         setTrend(prevState => ({
           ...prevState,
           Ratings: ratingArr
@@ -262,7 +263,7 @@ export default function HomePage() {
       })
     }
     getFirstHotMovie()
-    //取得熱門電影前20名
+    // 取得熱門電影前20名
     getPopular().then((data) => {
       setIsLoading(true)
       setMovies(data.results)
@@ -270,7 +271,7 @@ export default function HomePage() {
     }).catch((err) => {
       return err
     })
-    //取得即將上映20部電影
+    // 取得即將上映20部電影
     getUpcomming().then((data) => {
       setIsLoading(true)
       setUpcomming(data.results)
@@ -278,7 +279,7 @@ export default function HomePage() {
     }).catch((err) => {
       return err
     })
-    //取得熱門演員前20名
+    // 取得熱門演員前20名
     getPopularPeople().then((data) => {
       setIsLoading(true)
       setHotPeople(data.results)
@@ -286,11 +287,11 @@ export default function HomePage() {
     }).catch((err) => {
       return err
     })
-    //取得各種類型
+    // 取得各種類型
     getGenre().then((res) => {
       setIsLoading(true)
-      let genreArr = []
-      for(let i = 0; i < res.genres.length; i++) {
+      const genreArr = []
+      for (let i = 0; i < res.genres.length; i++) {
         genreArr.push(res.genres[i])
       }
       setGenre(genreArr)
@@ -298,42 +299,41 @@ export default function HomePage() {
     }).catch((err) => {
       return err
     })
-    //取得熱門評論
-    const db = getDatabase();
+    // 取得熱門評論
+    const db = getDatabase()
     const mostThumbsUpPosts = query(ref(db, 'comments'), orderByValue('thumbs_up'), limitToFirst(3))
     let keyArr = []
     onValue(mostThumbsUpPosts, (snapshot) => {
       const data = snapshot.val()
       keyArr = Object.keys(data)
-      let arr = []
-      for(let i = 0; i < keyArr.length; i++) {
+      const arr = []
+      for (let i = 0; i < keyArr.length; i++) {
         arr.push(
           {
-            ...data[keyArr[i]], 
+            ...data[keyArr[i]],
             isHide: true,
             id: keyArr[i]
           }
         )
       }
       setHotComments(arr)
-    });
-
-  }, []);
-//取得Popular movies分數
+    })
+  }, [])
+  // 取得Popular movies分數
   useEffect(() => {
-    //setIsLoading(true)
-    let arr = []
-    let arr2 = []
-    async function getPopularMovieRating() {
-      for(let i = 0; i < movies.length; i++) {
+    // setIsLoading(true)
+    const arr = []
+    const arr2 = []
+    async function getPopularMovieRating () {
+      for (let i = 0; i < movies.length; i++) {
         await getIMDBID(movies[i].id).then((res) => {
           arr.push(res.imdb_id)
         })
       }
-      for(let i = 0; i < arr.length; i++) {
+      for (let i = 0; i < arr.length; i++) {
         await getMovieRating(arr[i]).then((res) => {
           arr2.push(res.Ratings)
-          let a = res.Ratings
+          const a = res.Ratings
           setRating(prevCount => [...prevCount, a])
           setIsRatingLoading(prev => prev.map((item, index) => {
             if (index !== i) return item
@@ -345,7 +345,6 @@ export default function HomePage() {
       }
     }
     getPopularMovieRating()
-
   }, [movies])
 
   const handleCommentOpen = (id) => {
@@ -359,54 +358,55 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ backgroundColor: `#1C1C1C` }}>
-      <Loading isLoading={isLoading} />
+    <div style={ { backgroundColor: '#1C1C1C' } }>
+      <Loading isLoading={ isLoading } />
       <Section>
-        <RecommendationSection style={{ 
-            backgroundImage: trend.backdrop_path && `linear-gradient(to top, #1C1C1C, transparent), url("https://image.tmdb.org/t/p/original${trend.backdrop_path}")` 
-          }}>
+        <RecommendationSection style={ {
+          backgroundImage: trend.backdrop_path && `linear-gradient(to top, #1C1C1C, transparent), url("https://image.tmdb.org/t/p/original${trend.backdrop_path}")`
+        } }
+        >
           <Recommedation>
             <RecommendationTitle>{trend.title}</RecommendationTitle>
             <RecommedationContent>{trend.overview}</RecommedationContent>
-            <RecommedationRating>{trend.Ratings && <RatingList key={trend.id} Ratings={trend.Ratings} />}</RecommedationRating>
+            <RecommedationRating>{trend.Ratings && <RatingList Ratings={ trend.Ratings } key={ trend.id } />}</RecommedationRating>
           </Recommedation>
         </RecommendationSection>
         <PopularSection className="popular">
           <Title>Popular</Title>
           <MovieContainer>
-          <CarouselConatiner>
-            <div className="RWD-L">
-            <Carousel cols={4} gap={20}>
-              {movies.map((movie, index) =>
-                <Carousel.Item>
-                  <Movie
-                  key={movie.id}
-                  movie={movie}
-                  imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  rating={Rating[index]}
-                  id={movie.id}
-                  isRating={true}
-                  isRatingLoading={isRatingLoading[index]} />
-                </Carousel.Item>        
-              )}
-              </Carousel>
-            </div>
-            <div className="RWD-S">
-            <Carousel cols={2} gap={10}>
-              {movies.map((movie, index) =>
-                <Carousel.Item>
-                  <Movie
-                  key={movie.id}
-                  movie={movie}
-                  imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  rating={Rating[index]}
-                  id={movie.id}
-                  isRating={true}
-                  isRatingLoading={isRatingLoading[index]} />
-                </Carousel.Item>        
-              )}
-              </Carousel>
-            </div>
+            <CarouselConatiner>
+              <div className="RWD-L">
+                <Carousel cols={ 4 } gap={ 20 }>
+                  {movies.map((movie, index) =>
+                    <Carousel.Item key={ movie.id }>
+                      <Movie
+                        id={ movie.id }
+                        imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
+                        isRating
+                        isRatingLoading={ isRatingLoading[index] }
+                        movie={ movie }
+                        rating={ Rating[index] }
+                      />
+                    </Carousel.Item>
+                  )}
+                </Carousel>
+              </div>
+              <div className="RWD-S">
+                <Carousel cols={ 2 } gap={ 10 }>
+                  {movies.map((movie, index) =>
+                    <Carousel.Item key={ movie.id }>
+                      <Movie
+                        id={ movie.id }
+                        imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
+                        isRating
+                        isRatingLoading={ isRatingLoading[index] }
+                        movie={ movie }
+                        rating={ Rating[index] }
+                      />
+                    </Carousel.Item>
+                  )}
+                </Carousel>
+              </div>
             </CarouselConatiner>
           </MovieContainer>
         </PopularSection>
@@ -415,56 +415,55 @@ export default function HomePage() {
         <UpcommingSection>
           <MovieContainer>
             <CarouselConatiner>
-            <div className="RWD-L">
-              <Carousel cols={4} gap={10}>
-                {upcomming.map((movie, index) =>
-                  <Carousel.Item>
-                    <Movie
-                    key={movie.id}
-                    movie={movie}
-                    imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    id={movie.id}/>
-                  </Carousel.Item>        
-                )}
-              </Carousel>
+              <div className="RWD-L">
+                <Carousel cols={ 4 } gap={ 10 }>
+                  {upcomming.map((movie) =>
+                    <Carousel.Item key={ movie.id }>
+                      <Movie
+                        id={ movie.id }
+                        imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
+                        movie={ movie }
+                      />
+                    </Carousel.Item>
+                  )}
+                </Carousel>
               </div>
               <div className="RWD-S">
-              <Carousel cols={2} gap={10}>
-                {upcomming.map((movie, index) =>
-                  <Carousel.Item>
-                    <Movie
-                    key={movie.id}
-                    movie={movie}
-                    imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    id={movie.id}/>
-                  </Carousel.Item>        
-                )}
-              </Carousel>
+                <Carousel cols={ 2 } gap={ 10 }>
+                  {upcomming.map((movie) =>
+                    <Carousel.Item key={ movie.id }>
+                      <Movie
+                        id={ movie.id }
+                        imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
+                        movie={ movie }
+                      />
+                    </Carousel.Item>
+                  )}
+                </Carousel>
               </div>
             </CarouselConatiner>
           </MovieContainer>
         </UpcommingSection>
         <Title>Hottest</Title>
         <HotPeopleSection>
-          <Credits credits={hotPeople}></Credits>
+          <Credits credits={ hotPeople }></Credits>
         </HotPeopleSection>
         <Title>Genre</Title>
         <SubTitle>尋找您喜歡的類型</SubTitle>
         <TypeSection >
           {genres.map((genre) => {
-            return <Link key={genre.id} to={`/search/genre/${genre.id}`}><li>{genre.name}</li></Link>
+            return <Link key={ genre.id } to={ `/search/genre/${genre.id}` }><li>{genre.name}</li></Link>
           })}
         </TypeSection>
         <Title>Comments</Title>
         <HotCommentsSection>
-        {hotComments.length !== 0 ? hotComments.map((item, index) => {
-           return <Comment key={item.id} comment={item} handleCommentOpen={handleCommentOpen} isPosterOpen={true} />
-          }) : <p>還沒有任何評論</p>}
+          {hotComments.length !== 0
+            ? hotComments.map((item) => {
+              return <Comment comment={ item } handleCommentOpen={ handleCommentOpen } isPosterOpen key={ item.id } />
+            })
+            : <p>還沒有任何評論</p>}
         </HotCommentsSection>
       </Section>
-
-
     </div>
-
   )
 }

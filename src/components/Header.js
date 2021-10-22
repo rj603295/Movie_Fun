@@ -4,9 +4,9 @@ import { Link, useLocation, useHistory } from 'react-router-dom'
 import { getSearchData } from '../WebAPI'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faUserCircle, faBars } from '@fortawesome/free-solid-svg-icons'
-import { getAuth, signOut } from "firebase/auth"
+import { getAuth, signOut } from 'firebase/auth'
 import AuthContext from '../context'
-import { getUserDeviceType }from '../utils.js'
+import { getUserDeviceType } from '../utils.js'
 
 const HeaderContainer = styled.div`
   align-items: center;
@@ -185,7 +185,7 @@ const HamList = styled.div`
     } 
   }
 `
-function Header({ isHide }) {
+function Header ({ isHide }) {
   const location = useLocation()
   const history = useHistory()
   const [search, setSearch] = useState('')
@@ -199,21 +199,17 @@ function Header({ isHide }) {
   }, [])
 
   const handleKeyPressSearch = (e) => {
-    if(e.key === 'Enter'){
+    if (e.key === 'Enter') {
       setSearch('')
-      getSearchData(search).then((res) => {
+      getSearchData(search).then(() => {
         history.push(`/search/movie/${search}`)
       })
       setIsHamSearchOpen(false)
     }
-    // setSearch('')
-    // getSearchData(search).then((res) => {
-    //   history.push(`/search/movie/${search}`)
-    // })
   }
-  const handleSearch = (e) => {
+  const handleSearch = () => {
     setSearch('')
-    getSearchData(search).then((res) => {
+    getSearchData(search).then(() => {
       history.push(`/search/movie/${search}`)
     })
   }
@@ -222,14 +218,14 @@ function Header({ isHide }) {
   }
 
   const handleLogout = () => {
-    const auth = getAuth();
+    const auth = getAuth()
     signOut(auth).then(() => {
       setUser(null)
       // Sign-out successful.
     }).catch((error) => {
       return error
       // An error happened.
-    });
+    })
   }
   const handleSearchIconOpen = (e) => {
     e.preventDefault()
@@ -241,39 +237,44 @@ function Header({ isHide }) {
     setIsHamOpen(!isHamOpen)
     setIsHamSearchOpen(false)
   }
+  const handleToTop = () => {
+    if (location.pathname === '/') {
+      window.scrollTo(0, 0)
+    }
+  }
   useEffect(() => {
     if (isHide === true) {
       setIsHamOpen(false)
     }
-  },[isHide])
+  }, [isHide])
   return (
-    <HeaderContainer style={!userDevice.current ? {top: isHide ? '-200px' : '0px'} : {top: '0px'}}>
+    <HeaderContainer style={ !userDevice.current ? { top: isHide ? '-200px' : '0px' } : { top: '0px' } }>
       <Wrapper>
-        <Brand to="/">Fun電影</Brand>
+        <Brand onClick={ handleToTop } to="/">Fun電影</Brand>
         <Search className="RWD-L">
-        <input value={search} placeholder="搜尋您想要的電影, 人物...." onKeyPress={(e) => {handleKeyPressSearch(e)}} onChange={(e) => {handleValueChange(e)}}></input>
-        <SearchIcon onClick={handleSearch} ><FontAwesomeIcon icon={faSearch} /></SearchIcon>    
-      </Search>
+          <input onChange={ (e) => { handleValueChange(e) } } onKeyPress={ (e) => { handleKeyPressSearch(e) } } placeholder="搜尋您想要的電影, 人物...." value={ search }></input>
+          <SearchIcon onClick={ handleSearch } ><FontAwesomeIcon icon={ faSearch } /></SearchIcon>
+        </Search>
         <NavbarList>
-          <Nav className="RWD-L" to="/about" $active={location.pathname === '/about'}>about</Nav>
+          <Nav $active={ location.pathname === '/about' } className="RWD-L" to="/about">about</Nav>
           {!user && <Nav className="RWD-L" to="/login" >登入</Nav>}
-          {user && <Nav className="RWD-L" to="/login" onClick={handleLogout}>登出</Nav>}
-          <Nav to="/member" className="RWD-L"><FontAwesomeIcon icon={faUserCircle} /></Nav>
-           <Nav to="" className="RWD-S" onClick={handleSearchIconOpen}><FontAwesomeIcon icon={faSearch} /></Nav>
-          <Nav className="ham" to="" onClick={handleHamListOpen}><FontAwesomeIcon icon={faBars} /></Nav>
+          {user && <Nav className="RWD-L" onClick={ handleLogout } to="/login">登出</Nav>}
+          <Nav className="RWD-L" to="/member"><FontAwesomeIcon icon={ faUserCircle } /></Nav>
+          <Nav className="RWD-S" onClick={ handleSearchIconOpen } to=""><FontAwesomeIcon icon={ faSearch } /></Nav>
+          <Nav className="ham" onClick={ handleHamListOpen } to=""><FontAwesomeIcon icon={ faBars } /></Nav>
         </NavbarList>
       </Wrapper>
-     
-      <HamList style={{right: isHamOpen ? '1%' : '-200px'}}> 
+
+      <HamList style={ { right: isHamOpen ? '1%' : '-200px' } }>
         {!user && <Nav to="/login" >登入</Nav>}
-        {user && <Nav to="/login" onClick={handleLogout}>登出</Nav>}
-        <Nav to="/member" ><FontAwesomeIcon icon={faUserCircle} /></Nav>
-        <Nav to="/about" $active={location.pathname === '/about'}>about</Nav>
+        {user && <Nav onClick={ handleLogout } to="/login">登出</Nav>}
+        <Nav to="/member" ><FontAwesomeIcon icon={ faUserCircle } /></Nav>
+        <Nav $active={ location.pathname === '/about' } to="/about">about</Nav>
       </HamList>
       <Search className="RWD-S">
-          {isHamSearchOpen && <input value={search} placeholder="搜尋您想要的電影, 人物...." onKeyPress={(e) => {handleSearch(e)}} onChange={(e) => {handleValueChange(e)}}></input>}
-          {/* {!isHamSearchOpen && <SearchIcon onClick={() => {setIsHamSearchOpen(!isHamSearchOpen)}}><FontAwesomeIcon icon={faSearch} /></SearchIcon> }    */}
-        </Search>
+        {isHamSearchOpen && <input onChange={ (e) => { handleValueChange(e) } } onKeyPress={ (e) => { handleSearch(e) } } placeholder="搜尋您想要的電影, 人物...." value={ search }></input>}
+        {/* {!isHamSearchOpen && <SearchIcon onClick={() => {setIsHamSearchOpen(!isHamSearchOpen)}}><FontAwesomeIcon icon={faSearch} /></SearchIcon> }    */}
+      </Search>
       {/* </RWDSRightSection> */}
 
     </HeaderContainer>
@@ -281,9 +282,8 @@ function Header({ isHide }) {
 }
 
 export default React.memo(Header, (prevProps, nextProps) => {
-
   if (prevProps.isHide !== nextProps.isHide) {
-    return false //re-render
+    return false // re-render
   }
-  return true //不會 Re-render
-});
+  return true // 不會 Re-render
+})

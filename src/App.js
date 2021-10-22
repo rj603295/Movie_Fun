@@ -1,4 +1,4 @@
-import { useState,   useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   HashRouter as Router,
   Switch,
@@ -17,68 +17,68 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import MemberPage from './pages/MemberPage'
 import AboutPage from './pages/AboutPage'
-import config from './config';
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue } from "firebase/database"
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import config from './config'
+import { initializeApp } from 'firebase/app'
+import { getDatabase, ref, onValue } from 'firebase/database'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import AuthContext from './context'
 import Footer from './components/Footer'
 
-function App() {
+function App () {
   const [user, setUser] = useState(null)
   const [isHide, setIsHide] = useState(false)
   const [userFavorite, setUserFavorite] = useState({})
   let lastScrollY = useRef(0)
-  const app = initializeApp(config);
-  const db = getDatabase();
+  // const app = initializeApp(config);
+  initializeApp(config)
+  const db = getDatabase()
 
-  const auth = getAuth();
+  const auth = getAuth()
   onAuthStateChanged(auth, (user) => {
     if (user) {
       setUser(user.auth.currentUser)
-    } else {
-
     }
-  });
+  })
 
   const handleScroll = () => {
-    let st = window.scrollY //目前距離頂部位置
-    if(st < lastScrollY) {
+    const st = window.scrollY // 目前距離頂部位置
+    if (st < lastScrollY) {
       setIsHide(false)
-    }else if(st > lastScrollY) {
+    } else if (st > lastScrollY) {
       setIsHide(true)
     }
     lastScrollY = st
   }
 
-    window.addEventListener('scroll', () => {  
-      handleScroll()
-    });
+  window.addEventListener('scroll', () => {
+    handleScroll()
+  })
 
-    useEffect(() => {
-      function getFavorite() {
-        const movieRef = ref(db, 'favorite/' + user.uid)
-        onValue(movieRef, (snapshot) => {
-          const data = snapshot.val()
-          setUserFavorite(data)
-        });
-      }
-    
-        if(user){
-          getFavorite()
-        }
-    }, [user])
+  useEffect(() => {
+    function getFavorite () {
+      const movieRef = ref(db, 'favorite/' + user.uid)
+      onValue(movieRef, (snapshot) => {
+        const data = snapshot.val()
+        setUserFavorite(data)
+      })
+    }
+
+    if (user) {
+      getFavorite()
+    }
+  }, [user])
   return (
-    <AuthContext.Provider value={{
+    <AuthContext.Provider value={ {
       user,
       setUser,
       userFavorite
-    }}>
-    <div className="App">
-      <Router>
-        <Header className="header" isHide={isHide}/>
+    } }
+    >
+      <div className="App">
+        <Router>
+          <Header className="header" isHide={ isHide } />
           <Switch>
-          <Route exact path="/">
+            <Route exact path="/">
               <HomePage />
             </Route>
             <Route exact path="/movie/:id">
@@ -94,7 +94,7 @@ function App() {
               <CreditPage />
             </Route>
             <Route exact path="/login">
-              {!user ? <LoginPage /> : <Redirect to="/" />}      
+              {!user ? <LoginPage /> : <Redirect to="/" />}
             </Route>
             <Route exact path="/register">
               <RegisterPage />
@@ -107,12 +107,11 @@ function App() {
             </Route>
           </Switch>
           <Footer />
-      </Router>
-    </div>
+        </Router>
+      </div>
     </AuthContext.Provider>
 
-    
-  );
+  )
 }
 
-export default App;
+export default App

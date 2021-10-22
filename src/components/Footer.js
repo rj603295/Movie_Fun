@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopyright } from '@fortawesome/free-regular-svg-icons'
 import { faGithub, faFacebook, faInstagram, faTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons'
 
-
 const FooterContainer = styled.div`
   background: #1C1C1C;
   color: white;
@@ -32,13 +31,13 @@ export default function Footer () {
   return (
     <FooterContainer>
       <BrandSection>
-        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faGithub} /></a>
-        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faFacebook} /></a>
-        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faInstagram} /></a>
-        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faTwitter} /></a>
-        <a href="https://github.com/rj603295" target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faYoutube} /></a> 
+        <a href="https://github.com/rj603295" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={ faGithub } /></a>
+        <a href="https://github.com/rj603295" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={ faFacebook } /></a>
+        <a href="https://github.com/rj603295" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={ faInstagram } /></a>
+        <a href="https://github.com/rj603295" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={ faTwitter } /></a>
+        <a href="https://github.com/rj603295" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={ faYoutube } /></a>
       </BrandSection>
-      <FontAwesomeIcon icon={faCopyright} /><span>  2021 - Moive Fun Inc.</span>
+      <FontAwesomeIcon icon={ faCopyright } /><span>  2021 - Moive Fun Inc.</span>
     </FooterContainer>
   )
 }

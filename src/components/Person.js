@@ -21,14 +21,16 @@ const CreditName = styled.p`
     font-size: 14px;
   }
 `
-export default function Person ({ person, isName=true }) { 
+export default function Person ({ person, isName = true }) {
   return (
     <div>
-    <ImgContainer style={{ 
-      backgroundImage: person.profile_path ? `url("https://image.tmdb.org/t/p/w500${person.profile_path}")` : `url("https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg")` 
-    }} to={`/credit/${person.id}`}>     
-    </ImgContainer>
-    {isName && <CreditName>{person.name}</CreditName>}
+      <ImgContainer
+        style={ {
+          backgroundImage: person.profile_path ? `url("https://image.tmdb.org/t/p/w500${person.profile_path}")` : 'url("https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg")'
+        } } to={ `/credit/${person.id}` }
+      >
+      </ImgContainer>
+      {isName && <CreditName>{person.name}</CreditName>}
     </div>
 
   )

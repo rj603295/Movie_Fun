@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -42,21 +42,27 @@ const LogoSection = styled.div`
   margin-bottom: 5%;
   line-height: 1.5;
   font-size: 0.5rem;
+  text-align: justify;
   .IMDB, .tomato, .metacritic{
     width: 100%;
   }
   .tomato, .metacritic{
     background: white;
     border-radius: 8px;
-    padding: 5% 5%;
+    padding: 10% 5%;
     box-sizing: border-box;
   }
   @media (max-width: 415px) {
     display: block;
     font-size: 1.7rem;
     margin-bottom: 20%;
+    text-align: center;
     .IMDB, .tomato, .metacritic{
+
       width: 35%;
+    }
+    .tomato, .metacritic{
+      padding: 5% 5%;
     }
   }
 `
@@ -78,32 +84,32 @@ const Wrapper = styled.div`
   }
 `
 
-
-export default function AboutPage() {
+export default function AboutPage () {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   return (
     <Container>
       <AboutSection>
-      <h2>About</h2>
-      <p>找評分，Fun電影</p>
+        <h2>About</h2>
+        <p>找評分，Fun電影</p>
       </AboutSection>
       <Wrapper>
-      <SubTitle>三大評分網，一次滿足</SubTitle>
-      <LogoSection>
-        <img className="IMDB" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg"/>
-        <p>IMDb的用戶即可以以「1～10顆星」為電影評分，之後IMDb會以數據過濾機制及最小投票數量的限制（目前為1250票）來計算出一個加權平均星數作為評分。 因為IMDb以經常投票的用戶來計票，所以評分算是具客觀參考價值。</p>
-      </LogoSection>
-      <LogoSection>
-        <img className="tomato" alt="" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg"/>
-        <p>爛番茄的工作人員會追蹤每一部影片的所有評論內容，然後使用使用整合資料的積分來運算，評論正面或負面的新鮮度。當超過60％，即會得到一個鮮紅的番茄作為標記，當低於60％，則會得到綠色被砸爛的番茄作為標記。</p>
-      </LogoSection>
-      <LogoSection>
-        <img className="metacritic" alt="" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg"/>
-        <p>Metacritic是一個專門收集對於電影、電視節目、音樂專輯、遊戲的評論的網站，網站會整合每個評價的分數再做出一個總評分作為這個項目的評分，在項目的多項短評中，從最好的分數到最壞的分數由下排列，最好的評價分數是綠色到最低的評價分數的黃色、紅色排列。</p>
-      </LogoSection>
+        <SubTitle>三大評分網，一次滿足</SubTitle>
+        <LogoSection>
+          <img alt="" className="IMDB" src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" />
+          <p>IMDb的用戶即可以以「1～10顆星」為電影評分，之後IMDb會以數據過濾機制及最小投票數量的限制（目前為1250票）來計算出一個加權平均星數作為評分。 因為IMDb以經常投票的用戶來計票，所以評分算是具客觀參考價值。</p>
+        </LogoSection>
+        <LogoSection>
+          <img alt="" className="tomato" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Rotten_Tomatoes_logo.svg" />
+          <p>爛番茄的工作人員會追蹤每一部影片的所有評論內容，然後使用使用整合資料的積分來運算，評論正面或負面的新鮮度。當超過60％，即會得到一個鮮紅的番茄作為標記，當低於60％，則會得到綠色被砸爛的番茄作為標記。</p>
+        </LogoSection>
+        <LogoSection>
+          <img alt="" className="metacritic" src="https://upload.wikimedia.org/wikipedia/commons/4/48/Metacritic_logo.svg" />
+          <p>Metacritic是一個專門收集對於電影、電視節目、音樂專輯、遊戲的評論的網站，網站會整合每個評價的分數再做出一個總評分作為這個項目的評分，在項目的多項短評中，從最好的分數到最壞的分數由下排列，最好的評價分數是綠色到最低的評價分數的黃色、紅色排列。</p>
+        </LogoSection>
       </Wrapper>
-
     </Container>
-
 
   )
 }

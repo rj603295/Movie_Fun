@@ -47,7 +47,7 @@ const ItemContainer = styled.div`
     width: 45%;
   }
 `
-export default function SearchGenrePage() {
+export default function SearchGenrePage () {
   const [movies, setMovies] = useState([])
   const [genres, setGenre] = useState([])
   const [Rating, setRating] = useState([])
@@ -55,45 +55,45 @@ export default function SearchGenrePage() {
   const [totalPage, setTotalPage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
-  //const isRatingLoading = useRef(Array(20).fill(true))
+  // const isRatingLoading = useRef(Array(20).fill(true))
   const { id } = useParams()
-  //拿到此類型的電影集
+  // 拿到此類型的電影集
   useEffect(() => {
-    if(id !== '') {
-        getGenreSearch(id).then((res) => {
-          setIsLoading(true)
-          setCurrentPage(res.page)
-          setTotalPage(res.total_pages)
-          setMovies(res.results)
-          setIsLoading(false)
-        })
-    } 
+    if (id !== '') {
+      getGenreSearch(id).then((res) => {
+        setIsLoading(true)
+        setCurrentPage(res.page)
+        setTotalPage(res.total_pages)
+        setMovies(res.results)
+        setIsLoading(false)
+      })
+    }
   }, [id])
-  //取得此類型電影集評分
+  // 取得此類型電影集評分
   useEffect(() => {
-    let arr = []
-    let arr2 = []
-    async function getMoviesRatings() {
+    const arr = []
+    const arr2 = []
+    async function getMoviesRatings () {
       // setIsLoading(true)
-      for(let i = 0; i < movies.length; i++) {
+      for (let i = 0; i < movies.length; i++) {
         await getIMDBID(movies[i].id).then((res) => {
           arr.push(res.imdb_id)
         }).catch(() => {
           arr.push(null)
         })
       }
-      for(let i = 0; i < arr.length; i++) {
+      for (let i = 0; i < arr.length; i++) {
         await getMovieRating(arr[i]).then((res) => {
           arr2.push(res.Ratings)
-          let a = res.Ratings
+          const a = res.Ratings
           setRating(prevCount => [...prevCount, a])
-          
+
           setIsRatingLoading(prev => prev.map((item, index) => {
             if (index !== i) return item
             return false
           }))
-          //isRatingLoading.current[i] = false
-          //Sconsole.log(`${i}`,isRatingLoading.current[i])
+          // isRatingLoading.current[i] = false
+          // Sconsole.log(`${i}`,isRatingLoading.current[i])
         }).catch(() => {
           setRating(prevCount => [...prevCount, []])
         })
@@ -103,12 +103,10 @@ export default function SearchGenrePage() {
     getMoviesRatings()
   }, [movies])
 
-
-
   useEffect(() => {
     getGenre().then((res) => {
-      let genreArr = []
-      for(let i = 0; i < res.genres.length; i++) {
+      const genreArr = []
+      for (let i = 0; i < res.genres.length; i++) {
         genreArr.push(res.genres[i])
       }
       setGenre(genreArr)
@@ -119,7 +117,7 @@ export default function SearchGenrePage() {
     setIsLoading(true)
     setRating([])
     setIsRatingLoading(Array(20).fill(true))
-    if(id !== '') {
+    if (id !== '') {
       getGenreSearch(id, page).then((res) => {
         setCurrentPage(res.page)
         setMovies(res.results)
@@ -129,29 +127,29 @@ export default function SearchGenrePage() {
   }
   return (
     <Container>
-      <Loading isLoading={isLoading} />
+      <Loading isLoading={ isLoading } />
       <TypeTitle>
         {genres
           .filter((item) => {
             return item.id.toString() === id
-            })
+          })
           .map((item) => {
             return item.name + '類型搜尋結果'
-          })  
+          })
         }
       </TypeTitle>
       <ResultContainer>
         {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-L"><Movie key={item.id} movie={item} rating={Rating[index]} isRatingLoading={isRatingLoading[index]} isRating={true}/></ItemContainer>
+          return <ItemContainer className="RWD-L" key={ item.id } ><Movie isRating isRatingLoading={ isRatingLoading[index] } movie={ item } rating={ Rating[index] } /></ItemContainer>
         })}
         {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-S"><Movie key={item.id} movie={item} rating={Rating[index]} isRatingLoading={isRatingLoading[index]} isRating={true}/></ItemContainer>
+          return <ItemContainer className="RWD-S" key={ item.id } ><Movie isRating isRatingLoading={ isRatingLoading[index] } movie={ item } rating={ Rating[index] } /></ItemContainer>
         })}
       </ResultContainer>
       <PageContainer>
-        {currentPage !== 1 ? <button onClick={() => {handlePageChange(currentPage - 1)}}>&lt;</button> : ""}
-         {currentPage}
-         {currentPage !== totalPage ? <button onClick={() => {handlePageChange(currentPage + 1)}}>&gt;</button> : ""}
+        {currentPage !== 1 ? <button onClick={ () => { handlePageChange(currentPage - 1) } }>&lt;</button> : ''}
+        {currentPage}
+        {currentPage !== totalPage ? <button onClick={ () => { handlePageChange(currentPage + 1) } }>&gt;</button> : ''}
       </PageContainer>
     </Container>
 

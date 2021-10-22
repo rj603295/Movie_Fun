@@ -21,13 +21,12 @@ const ImgContainer = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
 `
-export default function Loading ({ isLoading=false }) {
-
+export default function Loading ({ isLoading = false }) {
   return (
     <div>
       {isLoading && <Container>
         <ImgContainer>
-          <img src={loadingImg} alt=""/>
+          <img alt="" src={ loadingImg } />
         </ImgContainer>
       </Container>}
     </div>

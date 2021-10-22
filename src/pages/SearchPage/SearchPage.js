@@ -5,7 +5,7 @@ import {
   getGenre,
   getSearchData,
   getIMDBID,
-  getMovieRating,
+  getMovieRating
 } from '../../WebAPI'
 import Movie from '../../components/Movie'
 import Person from '../../components/Person'
@@ -59,6 +59,16 @@ const ContentContainer = styled.div`
   }
   .RWD-S{
     display: none;
+  }
+  p{
+    display: -webkit-box;
+    overflow:hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    text-align: justify;
   }
   @media (max-width: 900px) {
     p{
@@ -139,42 +149,42 @@ const Filter = styled.li`
   cursor: pointer;
 `
 function People ({ person }) {
-  return(
+  return (
     <MovieContainer>
-      <Person person={person} isName={false}/>
+      <Person isName={ false } person={ person } />
       <ContentContainer>
         <h2>{person.name}</h2>
-        <p>代表作: {person.known_for.map((item) => {
-          return <li>{item.title}</li>
+        <p>代表作: {person.known_for.map((item, index) => {
+          return <li key={ index }>{item.title}</li>
         })}</p>
       </ContentContainer>
     </MovieContainer>
   )
 }
 function SearchMovie ({ movie, rating }) {
-  //let imgUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-  return(
+  // let imgUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+  return (
     <MovieContainer>
       <ItemContainer>
         <div className="RWD-L">
-        <Movie key={movie.id} movie={movie} id={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={rating}  isRating={false}/>
-        </div>  
-        <div className="RWD-S">
-        <Movie key={movie.id} movie={movie} id={movie.id} imgUrl={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} rating={rating}  isRating={false}/>
+          <Movie id={ movie.id } imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` } isRating={ false } key={ movie.id } movie={ movie } rating={ rating } />
         </div>
-        
+        <div className="RWD-S">
+          <Movie id={ movie.id } imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` } isRating={ false } key={ movie.id } movie={ movie } rating={ rating } />
+        </div>
+
       </ItemContainer>
       <ContentContainer>
         <h2>{movie.title}</h2>
         <p>{movie.overview}</p>
         <div className="RWD-S"></div>
-        <div className="rating-list"><RatingList Ratings={rating} logoWidth="30px" /></div>
+        <div className="rating-list"><RatingList Ratings={ rating } logoWidth="30px" /></div>
       </ContentContainer>
     </MovieContainer>
   )
 }
 
-export default function SearchPage() {
+export default function SearchPage () {
   const [movies, setMovies] = useState([])
   const [genres, setGenre] = useState([])
   const [rating, setRating] = useState([])
@@ -192,7 +202,8 @@ export default function SearchPage() {
   const { query } = useParams()
 
   useEffect(() => {
-    if(query !== '' ) {
+    if (query !== '') {
+      window.scrollTo(0, 0)
       setRating([])
       setMovies([])
       getSearchData(query).then((res) => {
@@ -200,30 +211,32 @@ export default function SearchPage() {
         setTotalPage(res.total_pages)
         let movieCount = 0
         let peopleCount = 0
-        let genreArr = []
+        const genreArr = []
         res.results.forEach((item) => {
-          if(item.media_type === 'movie') {
+          if (item.media_type === 'movie') {
             item.genre_ids.forEach((genreID) => {
-            const isFind = genreArr.find((itemID) => itemID === genreID)
-              if(!isFind) {
+              const isFind = genreArr.find((itemID) => itemID === genreID)
+              if (!isFind) {
                 genreArr.push(genreID)
-              } 
+              }
             })
           }
 
-          if(item.media_type === 'movie'){
-            return movieCount ++
+          if (item.media_type === 'movie') {
+            return movieCount++
           }
-          if(item.media_type === 'tv') {
+          if (item.media_type === 'tv') {
             return null
           }
-          if(item.media_type === 'person') {
-            return peopleCount ++
+          if (item.media_type === 'person') {
+            return peopleCount++
           }
         })
-        let allCount = movieCount + peopleCount
+        const allCount = movieCount + peopleCount
         setsearchItemGenreID(genreArr)
-        setMovies(res.results)
+        setMovies(res.results.sort((a, b) => {
+          return b.popularity - a.popularity
+        }))
         settypesCount({
           allCount,
           movieCount,
@@ -233,41 +246,41 @@ export default function SearchPage() {
     }
   }, [query])
 
-  //取得搜尋電影的評分
+  // 取得搜尋電影的評分
   useEffect(() => {
-      setRating([])
-      let arr = []
-      let arr2 = []
-      async function getSearchMovieRating() {
-        for(let i = 0; i < movies.length; i++) {
-          if(movies[i].media_type === 'movie') {
-            await getIMDBID(movies[i].id).then((res) => {
-              arr.push(res.imdb_id)
-            })
-          } else {
-            arr.push(null)
-          }
-        }
-        for(let i = 0; i < arr.length; i++) {
-          await getMovieRating(arr[i]).then((res) => {
-            arr2.push(res.Ratings)
-            let a = res.Ratings
-            setRating(prevCount => [...prevCount, a])
+    setRating([])
+    const arr = []
+    const arr2 = []
+    async function getSearchMovieRating () {
+      for (let i = 0; i < movies.length; i++) {
+        if (movies[i].media_type === 'movie') {
+          await getIMDBID(movies[i].id).then((res) => {
+            arr.push(res.imdb_id)
           })
+        } else {
+          arr.push(null)
         }
       }
-      getSearchMovieRating()
+      for (let i = 0; i < arr.length; i++) {
+        await getMovieRating(arr[i]).then((res) => {
+          arr2.push(res.Ratings)
+          const a = res.Ratings
+          setRating(prevCount => [...prevCount, a])
+        })
+      }
+    }
+    getSearchMovieRating()
   }, [movies])
 
   useEffect(() => {
     getGenre().then((res) => {
-      let genreArr = []
-      let arr2 = []
-      for(let i = 0; i < res.genres.length; i++) {
+      const genreArr = []
+      const arr2 = []
+      for (let i = 0; i < res.genres.length; i++) {
         genreArr.push(res.genres[i])
       }
-      for(let i = 0; i< searchItemGenreID.length; i++) {
-        let id = genreArr.find((item) => {
+      for (let i = 0; i < searchItemGenreID.length; i++) {
+        const id = genreArr.find((item) => {
           return item.id === searchItemGenreID[i]
         })
         arr2.push(id)
@@ -276,20 +289,19 @@ export default function SearchPage() {
     })
   }, [searchItemGenreID])
   const handleCurrentType = (e) => {
-    if(e.target.nodeName === 'LI') {
-      if(e.target.dataset.value === '0') {
+    if (e.target.nodeName === 'LI') {
+      if (e.target.dataset.value === '0') {
         setCurrentType(0)
       }
-      if(e.target.dataset.value === '1') {
+      if (e.target.dataset.value === '1') {
         setCurrentType(1)
       }
-      if(e.target.dataset.value === '2') {
+      if (e.target.dataset.value === '2') {
         setCurrentType(2)
       }
-      if(e.target.dataset.value === '3') {
+      if (e.target.dataset.value === '3') {
         setCurrentType(3)
       }
-
     }
   }
   const handleisTypeListOpen = () => {
@@ -305,84 +317,82 @@ export default function SearchPage() {
       setTotalPage(res.total_pages)
       let movieCount = 0
       let peopleCount = 0
-      let genreArr = []
+      const genreArr = []
       res.results.forEach((item) => {
-        if(item.media_type === 'movie') {
+        if (item.media_type === 'movie') {
           item.genre_ids.forEach((genreID) => {
             const isFind = genreArr.find((itemID) => itemID === genreID)
-             if(!isFind) {
-               genreArr.push(genreID)
-              } 
-            })
+            if (!isFind) {
+              genreArr.push(genreID)
+            }
+          })
         }
 
-        if(item.media_type === 'movie'){
-          return movieCount ++
+        if (item.media_type === 'movie') {
+          return movieCount++
         }
-        if(item.media_type === 'tv') {
-          return 
+        if (item.media_type === 'tv') {
+          return
         }
-        if(item.media_type === 'person') {
-          return peopleCount ++
+        if (item.media_type === 'person') {
+          return peopleCount++
         }
       })
-      let allCount = movieCount + peopleCount
+      const allCount = movieCount + peopleCount
       setsearchItemGenreID(genreArr)
-     setMovies(res.results)
-     settypesCount({
-       allCount,
-       movieCount,
-       peopleCount
-     })
+      setMovies(res.results)
+      settypesCount({
+        allCount,
+        movieCount,
+        peopleCount
+      })
     })
   }
   return (
     <Container>
       <Wrapper>
-      <ClassificationList>
-        <ul onClick={(e) => {handleCurrentType(e)}}>
-          <Filter $active={currentType === 0} data-value="0">全部 {typesCount.allCount}</Filter>
-          <Filter $active={currentType === 1} data-value="1">電影 {typesCount.movieCount}</Filter>
-          <Filter $active={currentType === 2} data-value="2">人物 {typesCount.peopleCount}</Filter>
-          <Filter $active={currentType === 3} onClick={handleisTypeListOpen}>類型</Filter>
-          {genres && isTypeListOpen &&
+        <ClassificationList>
+          <ul onClick={ (e) => { handleCurrentType(e) } }>
+            <Filter $active={ currentType === 0 } data-value="0">全部 {typesCount.allCount}</Filter>
+            <Filter $active={ currentType === 1 } data-value="1">電影 {typesCount.movieCount}</Filter>
+            <Filter $active={ currentType === 2 } data-value="2">人物 {typesCount.peopleCount}</Filter>
+            <Filter $active={ currentType === 3 } onClick={ handleisTypeListOpen }>類型</Filter>
+            {genres && isTypeListOpen &&
             genres.map((genre) => {
-              return <li className="genre-DDL" data-value="3" value={genre.id} onClick={(e) => {handleCurrentGenre(e)}}>{genre.name}</li>
-          })}
-        </ul>
-      </ClassificationList>
-
-
-      <ResultContainer>
-      {movies.length !== 0 && currentType === 0 && 
+              return <li className="genre-DDL" data-value="3" key={ genre.id } onClick={ (e) => { handleCurrentGenre(e) } } value={ genre.id }>{genre.name}</li>
+            })}
+          </ul>
+        </ClassificationList>
+        <ResultContainer>
+          {movies.length !== 0 && currentType === 0 &&
         movies.map((item, index) => {
-          if(item.media_type === 'movie') {
-            return <SearchMovie key={item.id} movie={item} rating={rating[index]} /> 
+          if (item.media_type === 'movie') {
+            return <SearchMovie key={ item.id } movie={ item } rating={ rating[index] } />
           }
-          if(item.media_type === 'person') {
-            return <People key={item.id} person={item}/>
-          } 
+          if (item.media_type === 'person') {
+            return <People key={ item.id } person={ item } />
+          }
           return null
         }) }
-        {movies && currentType === 1 && typesCount.movieCount !== 0 && 
+          {movies && currentType === 1 && typesCount.movieCount !== 0 &&
           movies
             .filter((item) => {
               return item.media_type === 'movie'
             })
             .map((item, index) => {
-              return <SearchMovie key={item.id} movie={item} rating={rating[index]}/>
-          })
+              return <SearchMovie key={ item.id } movie={ item } rating={ rating[index] } />
+            })
         }
-        {movies && currentType === 2 && typesCount.peopleCount !== 0 && 
+          {movies && currentType === 2 && typesCount.peopleCount !== 0 &&
           movies
             .filter((item) => {
               return item.media_type === 'person'
             })
             .map((item) => {
-              return <People key={item.id} person={item}/>
-            }) 
+              return <People key={ item.id } person={ item } />
+            })
         }
-        {movies && currentType === 3 && typesCount.allCount !== 0 && 
+          {movies && currentType === 3 && typesCount.allCount !== 0 &&
           movies
             .filter((item) => {
               return item.media_type === 'movie'
@@ -390,21 +400,23 @@ export default function SearchPage() {
             .filter((item) => {
               let genreFilter = false
               item.genre_ids.some((genre) => {
-                return genre === currentGenre ? genreFilter = true : genreFilter = false
+                genreFilter = (genre === currentGenre)
+                return genreFilter
+                // return genre === currentGenre ? genreFilter = true : genreFilter = false
               })
               return genreFilter === true
             })
             .map((item, index) => {
-              return <SearchMovie key={item.id} movie={item} rating={rating[index]}/>
-          })
+              return <SearchMovie key={ item.id } movie={ item } rating={ rating[index] } />
+            })
         }
-        {movies.length === 0 && <NotFoundMessage>找不到任何搜尋結果</NotFoundMessage>}
-      </ResultContainer>
+          {movies.length === 0 && <NotFoundMessage>找不到任何搜尋結果</NotFoundMessage>}
+        </ResultContainer>
       </Wrapper>
       <PageContainer>
-        {currentPage !== 1 ? <button onClick={() => {handlePageChange(currentPage - 1)}}>&lt;</button> : ""}
-         {currentPage}
-         {currentPage !== totalPage && totalPage !== 0 ? <button onClick={() => {handlePageChange(currentPage + 1)}}>&gt;</button> : ""}
+        {currentPage !== 1 ? <button onClick={ () => { handlePageChange(currentPage - 1) } }>&lt;</button> : ''}
+        {currentPage}
+        {currentPage !== totalPage && totalPage !== 0 ? <button onClick={ () => { handlePageChange(currentPage + 1) } }>&gt;</button> : ''}
       </PageContainer>
     </Container>
 
