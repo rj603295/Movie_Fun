@@ -1,70 +1,42 @@
-# Getting Started with Create React App
+## 簡介
+***
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+一個可以一次查到 IMDB, 爛番茄, Metacritic 三個知名電影評分網分數的電影平台，並提供電影評論、點讚功能，
+另外使用 Firebase 模擬後端資料庫，製作出會員系統，可以加入最愛片單，編輯自己歷史評論。
 
-## Available Scripts
+## 首頁
+***
+&nbsp;
+- 包含熱門電影排行榜、期待榜、及熱門演員榜、熱門電影評論等等...  
+&nbsp;
+![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/desktop.gif?raw=true)
 
-In the project directory, you can run:
+## 查詢各類電影資訊
+***
+&nbsp;
+- 可以直接搜尋查詢想要的電影
+- 可以依據電影分類篩選
+- 每部電影都有三大熱門評分網的分數  
+&nbsp;
+![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/search.gif?raw=true)
+&nbsp;
+&nbsp;
+![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/searchGenre.gif?raw=true)
 
-### `npm start`
+## 評論
+***
+&nbsp;
+- 每部電影頁面底下可以看到此部電影所有評論
+- 登入會員後，可以留下自己的評論
+- 可以幫自己或別人按讚   
+&nbsp;
+![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/comment.gif?raw=true)  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 會員系統
+***
+&nbsp;
+- 可以新增自己喜歡的電影至「喜歡影片」片單中
+- 可以看見自己的歷史評論，並可以做修改   
+&nbsp;
+![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/favorite.PNG?raw=true)
+![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/personalComment.PNG?raw=true)
