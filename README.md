@@ -31,3 +31,12 @@
 &nbsp;
 ![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/favorite.PNG?raw=true)
 ![image](https://github.com/rj603295/imgRepo/blob/master/Movie_Fun_Img/personalComment.PNG?raw=true)
+
+## 使用技術
+- React
+- React Router
+- Styled Components
+- 支援 RWD
+- Firebase
+- gh-pages
+- fetch API
