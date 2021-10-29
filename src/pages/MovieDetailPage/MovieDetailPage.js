@@ -428,9 +428,9 @@ export default function MovieDetailPage () {
       })
     }
     if (commentTitle !== '' && commentContent !== '') {
+      writeUserData()
       setcommentTitle('')
       setcommentContent('')
-      writeUserData()
     } else {
       alert('請輸入評論標題及內容')
     }
@@ -585,10 +585,10 @@ export default function MovieDetailPage () {
         {isCommentInputOpen &&
         <AddCommentSection isMobileDevice={ getUserDeviceType() }>
           <AddCommentColumn>
-            <span>標題：</span><input onChange={ (e) => setcommentTitle(e.target.value) } type="text" />
+            <span>標題：</span><input onChange={ (e) => setcommentTitle(e.target.value) } type="text" value={ commentTitle } />
           </AddCommentColumn>
           <AddCommentColumn>
-            <span>內容：</span><textarea onChange={ (e) => setcommentContent(e.target.value) } type="text" />
+            <span>內容：</span><textarea onChange={ (e) => setcommentContent(e.target.value) } type="text" value={ commentContent } />
           </AddCommentColumn>
           <input onClick={ handleCommentSubmit } type="submit"></input>
         </AddCommentSection>
