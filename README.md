@@ -1,5 +1,5 @@
 ## 簡介
-[Demo點我](http://markdown.tw/ "Title")  
+[Demo點我](https://rj603295.github.io/Movie_Fun/#/)  
 一個可以一次查到 IMDB, 爛番茄, Metacritic 三個知名電影評分網分數的電影平台，並提供電影評論、點讚功能，
 另外使用 Firebase 模擬後端資料庫，製作出會員系統，可以加入最愛片單，編輯自己歷史評論。
 
