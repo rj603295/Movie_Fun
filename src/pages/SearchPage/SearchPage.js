@@ -10,6 +10,7 @@ import {
 import Movie from '../../components/Movie'
 import Person from '../../components/Person'
 import RatingList from '../../components/Rating'
+import Loading from '../../components/Loading'
 
 const Container = styled.div`
   background: #1C1C1C;
@@ -199,6 +200,7 @@ export default function SearchPage () {
   const [currentGenre, setCurrentGenre] = useState(0)
   const [currentPage, setCurrentPage] = useState('')
   const [totalPage, setTotalPage] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
   const { query } = useParams()
 
   useEffect(() => {
@@ -249,25 +251,51 @@ export default function SearchPage () {
   // 取得搜尋電影的評分
   useEffect(() => {
     setRating([])
-    const arr = []
-    const arr2 = []
-    async function getSearchMovieRating () {
+    let arr = []
+    // const arr2 = []
+    function getSearchMovieRating () {
+      const IMDBIDArr = []
+      const ratingArr = []
       for (let i = 0; i < movies.length; i++) {
         if (movies[i].media_type === 'movie') {
-          await getIMDBID(movies[i].id).then((res) => {
-            arr.push(res.imdb_id)
-          })
+          IMDBIDArr.push(getIMDBID(movies[i].id))
         } else {
-          arr.push(null)
+          IMDBIDArr.push(null)
         }
       }
-      for (let i = 0; i < arr.length; i++) {
-        await getMovieRating(arr[i]).then((res) => {
-          arr2.push(res.Ratings)
-          const a = res.Ratings
-          setRating(prevCount => [...prevCount, a])
+      Promise.all(IMDBIDArr).then((res) => {
+        arr = Object.assign([], res)
+        for (let i = 0; i < arr.length; i++) {
+          ratingArr.push(getMovieRating(arr[i].imdb_id))
+        }
+      }).then(() => {
+        Promise.all(ratingArr).then((res) => {
+          setRating(res)
+          setIsLoading(false)
+        }).catch((err) => {
+          setIsLoading(false)
+          return err
         })
-      }
+      }).catch((err) => {
+        setIsLoading(false)
+        return err
+      })
+      // for (let i = 0; i < movies.length; i++) {
+      //   if (movies[i].media_type === 'movie') {
+      //     await getIMDBID(movies[i].id).then((res) => {
+      //       arr.push(res.imdb_id)
+      //     })
+      //   } else {
+      //     arr.push(null)
+      //   }
+      // }
+      // for (let i = 0; i < arr.length; i++) {
+      //   await getMovieRating(arr[i]).then((res) => {
+      //     arr2.push(res.Ratings)
+      //     const a = res.Ratings
+      //     setRating(prevCount => [...prevCount, a])
+      //   })
+      // }
     }
     getSearchMovieRating()
   }, [movies])
@@ -350,6 +378,7 @@ export default function SearchPage () {
   }
   return (
     <Container>
+      <Loading isLoading={ isLoading } />
       <Wrapper>
         <ClassificationList>
           <ul onClick={ (e) => { handleCurrentType(e) } }>
@@ -364,23 +393,23 @@ export default function SearchPage () {
           </ul>
         </ClassificationList>
         <ResultContainer>
-          {movies.length !== 0 && currentType === 0 &&
+          {rating.length !== 0 && movies.length !== 0 && currentType === 0 &&
         movies.map((item, index) => {
           if (item.media_type === 'movie') {
-            return <SearchMovie key={ item.id } movie={ item } rating={ rating[index] } />
+            return <SearchMovie key={ item.id } movie={ item } rating={ rating[index].Ratings } />
           }
           if (item.media_type === 'person') {
             return <People key={ item.id } person={ item } />
           }
           return null
         }) }
-          {movies && currentType === 1 && typesCount.movieCount !== 0 &&
+          {rating.length !== 0 && movies && currentType === 1 && typesCount.movieCount !== 0 &&
           movies
             .filter((item) => {
               return item.media_type === 'movie'
             })
             .map((item, index) => {
-              return <SearchMovie key={ item.id } movie={ item } rating={ rating[index] } />
+              return <SearchMovie key={ item.id } movie={ item } rating={ rating[index].Ratings } />
             })
         }
           {movies && currentType === 2 && typesCount.peopleCount !== 0 &&
@@ -392,7 +421,7 @@ export default function SearchPage () {
               return <People key={ item.id } person={ item } />
             })
         }
-          {movies && currentType === 3 && typesCount.allCount !== 0 &&
+          {rating.length !== 0 && movies && currentType === 3 && typesCount.allCount !== 0 &&
           movies
             .filter((item) => {
               return item.media_type === 'movie'
@@ -407,7 +436,7 @@ export default function SearchPage () {
               return genreFilter === true
             })
             .map((item, index) => {
-              return <SearchMovie key={ item.id } movie={ item } rating={ rating[index] } />
+              return <SearchMovie key={ item.id } movie={ item } rating={ rating[index].Ratings } />
             })
         }
           {movies.length === 0 && <NotFoundMessage>找不到任何搜尋結果</NotFoundMessage>}

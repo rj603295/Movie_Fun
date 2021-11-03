@@ -27,6 +27,7 @@ import Comment from '../../components/Comments'
 import Person from '../../components/Person'
 import Movie from '../../components/Movie'
 import { SRLWrapper } from 'simple-react-lightbox'
+import Loading from '../../components/Loading'
 
 const LeftContainer = styled.div`
   margin: 0 auto;
@@ -292,6 +293,7 @@ function Credits ({ credits }) {
   )
 }
 export default function MovieDetailPage () {
+  const [isLoading, setIsLoading] = useState(true)
   const [movie, setMovie] = useState([])
   const [rating, setRating] = useState([])
   const [recommendations, setRecommendations] = useState([])
@@ -378,12 +380,14 @@ export default function MovieDetailPage () {
     lightness = (red * 0.2126 + green * 0.7152 + blue * 0.0722) / 255
     colorStr = `hsl(0, 0%, calc((${lightness} - 0.5) * -999999%))`
   }
-
   useEffect(() => {
+    window.scrollTo(0, 0)
+    setIsLoading(true)
     getMovieDeatil(id).then((res) => {
       setMovie(res)
       return res
     }).then((res) => {
+      setIsLoading(false)
       getVideo(res.id).then((res) => {
         const videoArr = res.results.filter(item => {
           return item.type === 'Trailer'
@@ -405,7 +409,6 @@ export default function MovieDetailPage () {
       setDirector(director[0])
     })
     getMovieImage(id).then((res) => {
-      // let imgArr = res.backdrops.slice(3, 7)
       const imgArr = res.backdrops
       setImages(imgArr)
     })
@@ -505,6 +508,7 @@ export default function MovieDetailPage () {
       backgroundColor: '#1C1C1C', color: 'white'
     } }
     >
+      <Loading isLoading={ isLoading } />
       {movie.poster_path &&
       <Container style={ {
         backgroundImage: `linear-gradient(to top, #1C1C1C, ${backgroundMask}), url("https://image.tmdb.org/t/p/original${movie.backdrop_path}")`

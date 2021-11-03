@@ -48,13 +48,13 @@ const ItemContainer = styled.div`
   }
 `
 export default function SearchGenrePage () {
+  const [isLoading, setIsLoading] = useState(true)
   const [movies, setMovies] = useState([])
   const [genres, setGenre] = useState([])
   const [Rating, setRating] = useState([])
   const [currentPage, setCurrentPage] = useState('')
   const [totalPage, setTotalPage] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
+  // const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
   // const isRatingLoading = useRef(Array(20).fill(true))
   const { id } = useParams()
   // 拿到此類型的電影集
@@ -65,45 +65,66 @@ export default function SearchGenrePage () {
         setCurrentPage(res.page)
         setTotalPage(res.total_pages)
         setMovies(res.results)
-        setIsLoading(false)
       })
     }
   }, [id])
   // 取得此類型電影集評分
   useEffect(() => {
-    const arr = []
-    const arr2 = []
-    async function getMoviesRatings () {
-      // setIsLoading(true)
+    let arr = []
+    // const arr2 = []
+    function getMoviesRatings () {
+      setIsLoading(true)
+      const IMDBIDArr = []
+      const ratingArr = []
       for (let i = 0; i < movies.length; i++) {
-        await getIMDBID(movies[i].id).then((res) => {
-          arr.push(res.imdb_id)
-        }).catch(() => {
-          arr.push(null)
-        })
+        IMDBIDArr.push(getIMDBID(movies[i].id))
       }
-      for (let i = 0; i < arr.length; i++) {
-        await getMovieRating(arr[i]).then((res) => {
-          arr2.push(res.Ratings)
-          const a = res.Ratings
-          setRating(prevCount => [...prevCount, a])
+      Promise.all(IMDBIDArr).then((res) => {
+        arr = Object.assign([], res)
+        for (let i = 0; i < arr.length; i++) {
+          ratingArr.push(getMovieRating(arr[i].imdb_id))
+        }
+      }).then(() => {
+        Promise.all(ratingArr).then((res) => {
+          setRating(res)
+          setIsLoading(false)
+        }).catch((err) => {
+          setIsLoading(false)
+          return err
+        })
+      }).catch((err) => {
+        return err
+      })
+      // for (let i = 0; i < movies.length; i++) {
+      //   await getIMDBID(movies[i].id).then((res) => {
+      //     arr.push(res.imdb_id)
+      //   }).catch(() => {
+      //     arr.push(null)
+      //   })
+      // }
+      // for (let i = 0; i < arr.length; i++) {
+      //   await getMovieRating(arr[i]).then((res) => {
+      //     arr2.push(res.Ratings)
+      //     const a = res.Ratings
+      //     setRating(prevCount => [...prevCount, a])
 
-          setIsRatingLoading(prev => prev.map((item, index) => {
-            if (index !== i) return item
-            return false
-          }))
-          // isRatingLoading.current[i] = false
-          // Sconsole.log(`${i}`,isRatingLoading.current[i])
-        }).catch(() => {
-          setRating(prevCount => [...prevCount, []])
-        })
-      }
+      //     setIsRatingLoading(prev => prev.map((item, index) => {
+      //       if (index !== i) return item
+      //       return false
+      //     }))
+      //     // isRatingLoading.current[i] = false
+      //     // Sconsole.log(`${i}`,isRatingLoading.current[i])
+      //   }).catch(() => {
+      //     setRating(prevCount => [...prevCount, []])
+      //   })
+      // }
       // setRating(arr2)
     }
     getMoviesRatings()
   }, [movies])
 
   useEffect(() => {
+    setIsLoading(true)
     getGenre().then((res) => {
       const genreArr = []
       for (let i = 0; i < res.genres.length; i++) {
@@ -116,14 +137,14 @@ export default function SearchGenrePage () {
     window.scrollTo(0, 0)
     setIsLoading(true)
     setRating([])
-    setIsRatingLoading(Array(20).fill(true))
+    // setIsRatingLoading(Array(20).fill(true))
     if (id !== '') {
       getGenreSearch(id, page).then((res) => {
         setCurrentPage(res.page)
         setMovies(res.results)
       })
     }
-    setIsLoading(false)
+    // setIsLoading(false)
   }
   return (
     <Container>
@@ -139,11 +160,11 @@ export default function SearchGenrePage () {
         }
       </TypeTitle>
       <ResultContainer>
-        {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-L" key={ item.id } ><Movie isRating isRatingLoading={ isRatingLoading[index] } movie={ item } rating={ Rating[index] } /></ItemContainer>
+        {Rating.length !== 0 && movies && movies.map((item, index) => {
+          return <ItemContainer className="RWD-L" key={ item.id } ><Movie isRating isRatingLoading={ false } movie={ item } rating={ Rating[index].Ratings } /></ItemContainer>
         })}
         {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-S" key={ item.id } ><Movie isRating isRatingLoading={ isRatingLoading[index] } movie={ item } rating={ Rating[index] } /></ItemContainer>
+          return <ItemContainer className="RWD-S" key={ item.id } ><Movie isRating isRatingLoading={ false } movie={ item } rating={ Rating[index] } /></ItemContainer>
         })}
       </ResultContainer>
       <PageContainer>

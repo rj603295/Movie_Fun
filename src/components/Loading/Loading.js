@@ -21,7 +21,7 @@ const ImgContainer = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
 `
-export default function Loading ({ isLoading = false }) {
+export default function Loading ({ isLoading = true }) {
   return (
     <div>
       {isLoading && <Container>

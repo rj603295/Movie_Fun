@@ -228,7 +228,7 @@ export default function HomePage () {
   const [hotPeople, setHotPeople] = useState([])
   const [hotComments, setHotComments] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
+  // const [isRatingLoading, setIsRatingLoading] = useState(Array(20).fill(true))
 
   // 初始化
   useEffect(() => {
@@ -322,27 +322,50 @@ export default function HomePage () {
   // 取得Popular movies分數
   useEffect(() => {
     // setIsLoading(true)
-    const arr = []
-    const arr2 = []
+    let arr = []
+    // const arr2 = []
     async function getPopularMovieRating () {
-      for (let i = 0; i < movies.length; i++) {
-        await getIMDBID(movies[i].id).then((res) => {
-          arr.push(res.imdb_id)
-        })
-      }
-      for (let i = 0; i < arr.length; i++) {
-        await getMovieRating(arr[i]).then((res) => {
-          arr2.push(res.Ratings)
-          const a = res.Ratings
-          setRating(prevCount => [...prevCount, a])
-          setIsRatingLoading(prev => prev.map((item, index) => {
-            if (index !== i) return item
-            return false
-          }))
+      if (movies.length !== 0) {
+        const IMDBIDArr = []
+        const ratingArr = []
+        for (let i = 0; i < movies.length; i++) {
+          IMDBIDArr.push(getIMDBID(movies[i].id))
+        }
+        Promise.all(IMDBIDArr).then((res) => {
+          arr = Object.assign([], res)
+          for (let i = 0; i < arr.length; i++) {
+            ratingArr.push(getMovieRating(arr[i].imdb_id))
+          }
+        }).then(() => {
+          Promise.all(ratingArr).then((res) => {
+            setRating(res)
+          }).catch((err) => {
+            setIsLoading(false)
+            return err
+          })
         }).catch((err) => {
+          setIsLoading(false)
           return err
         })
       }
+      // for (let i = 0; i < movies.length; i++) {
+      //   await getIMDBID(movies[i].id).then((res) => {
+      //     arr.push(res.imdb_id)
+      //   })
+      // }
+      // for (let i = 0; i < arr.length; i++) {
+      //   await getMovieRating(arr[i]).then((res) => {
+      //     arr2.push(res.Ratings)
+      //     const a = res.Ratings
+      //     setRating(prevCount => [...prevCount, a])
+      //     setIsRatingLoading(prev => prev.map((item, index) => {
+      //       if (index !== i) return item
+      //       return false
+      //     }))
+      //   }).catch((err) => {
+      //     return err
+      //   })
+      // }
     }
     getPopularMovieRating()
   }, [movies])
@@ -377,15 +400,15 @@ export default function HomePage () {
             <CarouselConatiner>
               <div className="RWD-L">
                 <Carousel cols={ 4 } gap={ 20 }>
-                  {movies.map((movie, index) =>
+                  {Rating.length !== 0 && movies.map((movie, index) =>
                     <Carousel.Item key={ movie.id }>
                       <Movie
                         id={ movie.id }
                         imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
                         isRating
-                        isRatingLoading={ isRatingLoading[index] }
+                        isRatingLoading={ false }
                         movie={ movie }
-                        rating={ Rating[index] }
+                        rating={ Rating[index].Ratings }
                       />
                     </Carousel.Item>
                   )}
@@ -393,15 +416,15 @@ export default function HomePage () {
               </div>
               <div className="RWD-S">
                 <Carousel cols={ 2 } gap={ 10 }>
-                  {movies.map((movie, index) =>
+                  {Rating.length !== 0 && movies.map((movie, index) =>
                     <Carousel.Item key={ movie.id }>
                       <Movie
                         id={ movie.id }
                         imgUrl={ `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
                         isRating
-                        isRatingLoading={ isRatingLoading[index] }
+                        isRatingLoading={ false }
                         movie={ movie }
-                        rating={ Rating[index] }
+                        rating={ Rating[index].Ratings }
                       />
                     </Carousel.Item>
                   )}
