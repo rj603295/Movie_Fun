@@ -163,8 +163,8 @@ export default function SearchGenrePage () {
         {Rating.length !== 0 && movies && movies.map((item, index) => {
           return <ItemContainer className="RWD-L" key={ item.id } ><Movie isRating isRatingLoading={ false } movie={ item } rating={ Rating[index].Ratings } /></ItemContainer>
         })}
-        {movies && movies.map((item, index) => {
-          return <ItemContainer className="RWD-S" key={ item.id } ><Movie isRating isRatingLoading={ false } movie={ item } rating={ Rating[index] } /></ItemContainer>
+        {Rating.length !== 0 && movies && movies.map((item, index) => {
+          return <ItemContainer className="RWD-S" key={ item.id } ><Movie isRating isRatingLoading={ false } movie={ item } rating={ Rating[index].Ratings } /></ItemContainer>
         })}
       </ResultContainer>
       <PageContainer>
